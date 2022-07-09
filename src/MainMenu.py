@@ -5,6 +5,9 @@ pg.init()
 inst = False
 
 screen = pg.display.set_mode((1316,740))
+appIcon = pg.image.load('resources/images/app/icon.png')
+pg.display.set_icon(appIcon)
+pg.display.set_caption("Zombie Invasion: Apocalypse")
 clock = pg.time.Clock()
 pg.mouse.set_visible(True)
 mainScreen = pg.image.load('resources/images/world/level6/6.png')
@@ -13,8 +16,7 @@ mainScreen = pg.transform.scale(mainScreen,(1316,740))
 
 # mixer.music.load('MainMenu.wav')
 # mixer.music.play(-1)
-running = True
-while running:
+while True:
 
     playFont = pg.font.Font('resources/fonts/Starjedi.ttf',60)
     playText = playFont.render("Play",True,(255,255,255))
@@ -39,7 +41,6 @@ while running:
             if playRect.collidepoint(event.pos):
                 import InGame
                 InGame.main();
-                running = False
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_i:
                 inst = True
@@ -66,10 +67,5 @@ while running:
     #     screen.blit(instructions5,(15,440))
     #     screen.blit(instructions6,(15,480)) 
 
-
-    appIcon = pg.image.load('resources/images/app/icon.png')
-    pg.display.set_icon(appIcon)
-
-    pg.display.set_caption("Zombie Invasion: Apocalypse")
     pg.display.update()
     clock.tick(30)

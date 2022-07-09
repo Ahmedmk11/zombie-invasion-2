@@ -5,5 +5,8 @@
         "KEYUP",
         "MOUSEBUTTONDOWN",
         "Starjedi"
+    ],
+    "python.analysis.extraPaths": [
+        "./src/sprites"
     ]
 }
