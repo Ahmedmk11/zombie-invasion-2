@@ -2,8 +2,8 @@ import pygame as pg, os, InGame
 from pygame import Vector2 as vec
 pg.init()
 
-WIDTH = 1306
-HEIGHT = 526 
+WIDTH = 1316
+HEIGHT = 526
 ACCELERATION = 0.7
 FRICTION = -0.12
 GRAVITY = 9.8
@@ -37,7 +37,8 @@ class Player(pg.sprite.Sprite):
         super().__init__()
         self.screen = screen
         self.updateTime = pg.time.get_ticks()
-        self.frame_index = 0
+        self.frameIndex = 0
+        self.action = 0
         self.hp = 100
         self.vel_vec = vec(0,0)
         self.acc_vec = vec(0,0)
@@ -46,10 +47,8 @@ class Player(pg.sprite.Sprite):
         self.isJumping = False
         self.isIdle = True
         self.isFlipped = False
-        self.movingLeft = False
-        self.movingRight = False
         self.shootingCoolDown = 0
-        self.pos = vec(WIDTH/2,HEIGHT/2)
+
         self.walkLeft = makeAnimation('resources/images/sprites/heroine/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/heroine/walk/')
         self.idleLeft = makeAnimation('resources/images/sprites/heroine/idle/')
@@ -58,21 +57,36 @@ class Player(pg.sprite.Sprite):
         self.shootRight = makeAnimationFlip('resources/images/sprites/heroine/shoot/')
         self.dieLeft = makeAnimation('resources/images/sprites/heroine/die/')
         self.dieRight = makeAnimationFlip('resources/images/sprites/heroine/die/')
-        self.image = self.idleLeft[self.frame_index]
-        self.rect = self.image.get_rect()
+        self.anime = []
+        self.anime.append(self.idleLeft)
+        self.anime.append(self.idleRight)
+        self.anime.append(self.walkLeft)
+        self.anime.append(self.walkRight)
+        self.anime.append(self.shootLeft)
+        self.anime.append(self.shootRight)
+        self.anime.append(self.dieLeft)
+        self.anime.append(self.dieRight)
 
-    def move(self):
-        if self.movingLeft:
+        self.image = self.anime[self.action][self.frameIndex]
+        self.rect = self.image.get_rect()
+        self.pos = vec(WIDTH/2,HEIGHT/2)
+        self.rect.midbottom = self.pos
+        
+
+    def move(self, movingLeft, movingRight):
+        self.acc_vec = vec(0,ACCELERATION)
+        if movingLeft:
             self.acc_vec.x = -ACCELERATION
             self.isFlipped = False
 
-        elif self.movingRight:
+        if movingRight:
             self.acc_vec.x = ACCELERATION
             self.isFlipped = True
 
         self.acc_vec.x += self.vel_vec.x * FRICTION
         self.vel_vec += self.acc_vec
         self.pos += self.vel_vec + 0.5 * self.acc_vec
+
         self.rect.midbottom = self.pos
 
         hits = pg.sprite.spritecollide(InGame.player_group.sprite, InGame.platform_group,False)
@@ -81,11 +95,14 @@ class Player(pg.sprite.Sprite):
             self.vel_vec.y = 0
 
 
-    def jump():
-        pass
-
-    def idle():
-        pass
+    def jump(self):
+        self.rect.y += 1
+        hits = pg.sprite.spritecollide(InGame.player_group.sprite, InGame.platform_group,False)
+        self.rect.y -= -1
+        if hits:
+            # jump_sound = mixer.Sound('Jump.wav')
+            # jump_sound.play()
+            self.vel_vec.y = -15
 
     def shoot():
         pass
@@ -100,62 +117,21 @@ class Player(pg.sprite.Sprite):
         self.screen.blit(self.image,self.rect)
 
     def update(self):
-
         animation_cooldown = 75
-
-        if self.movingLeft:
-            self.image = self.movingLeft[self.frame_index]
-        elif self.movingRight:
-            self.image = self.movingRight[self.frame_index]
-
-        elif not self.movingLeft and not self.movingRight and not self.isShooting and not self.isDead:
-            self.isIdle = True
-            if self.isFlipped:
-                self.image = self.idleRight[self.frame_index]
-            elif not self.isFlipped:
-                self.image = self.idleLeft[self.frame_index]
-
-        elif self.isShooting:
-            if self.isFlipped:
-                self.image = self.shootRight[self.frame_index]
-            elif not self.isFlipped:
-                self.image = self.shootLeft[self.frame_index]
-
-        elif self.isDead:
-            if self.isFlipped:
-                self.image = self.dieRight[self.frame_index]
-            elif not self.isFlipped:
-                self.image = self.dieLeft[self.frame_index]
+        self.image = self.anime[self.action][self.frameIndex]
 
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:
             self.updateTime = pg.time.get_ticks()
-            self.frame_index += 1
-        
-        if self.movingLeft and self.frame_index >= len(self.movingLeft):
-            self.frame_index = 0
-        elif self.movingRight and self.frame_index >= len(self.movingRight):
-            self.frame_index = 0
+            self.frameIndex += 1
 
-        elif self.isIdle:
-
-            if self.isFlipped and self.frame_index >= len(self.idleRight):
-                self.frame_index = 0
-            elif not self.isFlipped and self.frame_index >= len(self.idleLeft):
-                self.frame_index = 0
-
-        elif self.isShooting:
-   
-            if self.isFlipped and self.frame_index >= len(self.shootRight):
-                self.frame_index = 0
-            elif not self.isFlipped and self.frame_index >= len(self.shootLeft):
-                self.frame_index = 0
-
-        elif self.isDead:
-
-            if self.isFlipped and self.frame_index >= len(self.dieRight):
-                self.frame_index = 0
-            elif not self.isFlipped and self.frame_index >= len(self.dieLeft):
-                self.frame_index = 0
+        if self.frameIndex >= len(self.anime[self.action]):
+            self.frameIndex = 0
 
         if self.shootingCoolDown > 0:
             self.shootingCoolDown -= 1
+
+    def update_action(self,new_action):
+        if new_action != self.action:
+            self.action = new_action
+            self.frame_index = 0
+            self.updateTime = pg.time.get_ticks()
