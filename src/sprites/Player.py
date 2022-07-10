@@ -111,11 +111,29 @@ class Player(pg.sprite.Sprite):
         bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 7, self.direction)
         InGame.bullet_group.add(bullet)
 
-    def getDamage():
-        pass
+    def getDamage(self, val):
+        self.health -= val
+        # hit_sound = mixer.Sound('Hit.wav')
+        # hit_sound.play()
 
-    def die():
-        pass
+    def die(self):
+        InGame.alive = False
+        if not self.isFlipped:
+            InGame.isMovingLeft = False
+            InGame.isMovingRight = False
+            InGame.isIdleLeft = False
+            InGame.isIdleRight = False
+            InGame.isShootingLeft = False
+            InGame.isShootingRight = False
+            InGame.isDeadLeft = True
+        if self.isFlipped:
+            InGame.isMovingLeft = False
+            InGame.isMovingRight = False
+            InGame.isIdleLeft = False
+            InGame.isIdleRight = False
+            InGame.isShootingLeft = False
+            InGame.isShootingRight = False
+            InGame.isDeadRight = True
 
     def draw(self):
         InGame.screen.blit(self.image,self.rect)
@@ -126,9 +144,12 @@ class Player(pg.sprite.Sprite):
 
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:
             self.updateTime = pg.time.get_ticks()
-            self.frameIndex += 1
+            if not InGame.alive and self.frameIndex == len(self.anime[self.action]) - 1:
+                self.frameIndex == len(self.anime[self.action]) - 1
+            else:
+                self.frameIndex += 1
 
-        if self.frameIndex >= len(self.anime[self.action]):
+        if self.frameIndex >= len(self.anime[self.action]) and InGame.alive:
             self.frameIndex = 0
 
         if self.shootingCoolDown > 0:

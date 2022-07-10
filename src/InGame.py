@@ -1,12 +1,14 @@
-from ast import match_case
 import pygame as pg, math, random, sys
 from sprites import Player as pl
 from sprites import Platform as pt
 from pygame import mixer 
 pg.init()
 
+playFont = pg.font.Font('resources/fonts/Starjedi.ttf',60)
+
 WIDTH = 1316
 HEIGHT = 740
+alive = True
 isIdleLeft = True
 isIdleRight = False
 isMovingLeft = False
@@ -40,10 +42,16 @@ platform_group.add(platform)
 
 bullet_group = pg.sprite.Group()
 
+def game_over():
+    text = playFont.render("Game Over",True,(255,255,255))
+    text_rect = text.get_rect(center = (653,243))
+    screen.blit(text,text_rect)
+
+
 
 def main_game():
     
-    pg.draw.rect(screen,(0,0,0),(58,35,200,10))
+    pg.draw.rect(screen,(255,255,255),(58,35,200,10))
     pg.draw.rect(screen,(191,33,48),(58,35,2 * player_group.sprite.hp,10))
     
 
@@ -108,7 +116,7 @@ while True:
             pg.quit()
             sys.exit()
 
-        if event.type == pg.KEYDOWN:
+        if event.type == pg.KEYDOWN and alive:
             if event.key == pg.K_LEFT:
                 isMovingLeft = True
                 isMovingRight = False
@@ -139,9 +147,13 @@ while True:
                 isShootingRight = True
 
             if event.key == pg.K_UP:
-                    player_group.sprite.jump()
+                player_group.sprite.jump()
 
-        if event.type == pg.KEYUP:
+
+            if event.key == pg.K_t:
+                player.hp = 0
+
+        if event.type == pg.KEYUP and alive:
             if event.key == pg.K_LEFT:
                 isMovingLeft = False
                 isIdleLeft = True
@@ -156,9 +168,13 @@ while True:
                     isShootingRight = False
                     isIdleRight = True
 
+    main_game()
 
     if player_group.sprite.hp > 0:
-        main_game()
+        pass
+    else:
+        player.die()
+        game_over()
 
     pg.display.update()
     platform_group.draw(screen)
