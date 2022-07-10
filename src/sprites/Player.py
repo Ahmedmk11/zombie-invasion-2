@@ -76,12 +76,12 @@ class Player(pg.sprite.Sprite):
 
     def move(self):
         self.acc_vec = vec(0,ACCELERATION)
-        if InGame.movingLeft:
+        if InGame.isMovingLeft:
             self.acc_vec.x = -ACCELERATION
             self.isFlipped = False
             self.direction = 1
 
-        if InGame.movingRight:
+        if InGame.isMovingRight:
             self.acc_vec.x = ACCELERATION
             self.isFlipped = True
             self.direction = -1

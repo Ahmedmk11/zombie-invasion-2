@@ -1,3 +1,4 @@
+from ast import match_case
 import pygame as pg, math, random, sys
 from sprites import Player as pl
 from sprites import Platform as pt
@@ -8,8 +9,8 @@ WIDTH = 1316
 HEIGHT = 740
 isIdleLeft = True
 isIdleRight = False
-movingLeft = False
-movingRight = False
+isMovingLeft = False
+isMovingRight = False
 isIdleLeft = False
 isIdleRight = False
 isShootingLeft = False
@@ -18,6 +19,8 @@ isDeadLeft = False
 isDeadRight = False
 
 screen = pg.display.set_mode((WIDTH,HEIGHT))
+heart = pg.transform.flip(pg.image.load('resources/images/sprites/heroine/heart.png'),True,False)
+heart_rect = heart.get_rect(center = (5,0))
 appIcon = pg.image.load('resources/images/app/icon.png')
 pg.display.set_icon(appIcon)
 pg.display.set_caption("Zombie Invasion: Apocalypse")
@@ -40,9 +43,9 @@ bullet_group = pg.sprite.Group()
 
 def main_game():
     
-    pg.draw.rect(screen,(255,0,0),(22,20,200,10))
-    pg.draw.rect(screen,(255,0,0),(22,20,2 * player_group.sprite.hp,10))
-    # screen.blit(heart,(0,2))
+    pg.draw.rect(screen,(0,0,0),(58,35,200,10))
+    pg.draw.rect(screen,(191,33,48),(58,35,2 * player_group.sprite.hp,10))
+    
 
     bullet_group.draw(screen)  
     player.draw() 
@@ -53,24 +56,13 @@ def main_game():
     # hostiles_group.update()
     player_group.update()
 
-    # player.screen_edge()
-
-    if isShootingLeft or isShootingRight:
-        if player.shootingCoolDown == 0:
-            # Fireball_sound = mixer.Sound('Fireball.wav')
-            # Fireball_sound.play()
-            player.shoot()
-            player.shootingCoolDown = 37
-
-
-
     if isIdleLeft:
         player.update_action(0)
     if isIdleRight:
         player.update_action(1)
-    if movingLeft:
+    if isMovingLeft:
         player.update_action(2)
-    if movingRight:
+    if isMovingRight:
         player.update_action(3)
     if isShootingLeft:
         player.update_action(4)
@@ -83,7 +75,12 @@ def main_game():
 
     player.move()
 
-
+    if isShootingLeft or isShootingRight:
+        if player.shootingCoolDown == 0:
+            # Fireball_sound = mixer.Sound('Fireball.wav')
+            # Fireball_sound.play()
+            player.shoot()
+            player.shootingCoolDown = 25
 
     if player.pos.x > WIDTH:
         player.pos.x = 0
@@ -100,12 +97,10 @@ def main_game():
     #     zombie_die = mixer.Sound('Zombie.wav')
     #     zombie_die.play()
 
-
-
 while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
-
+    screen.blit(heart,(0,2))
 
     for event in pg.event.get():
 
@@ -115,16 +110,32 @@ while True:
 
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
-                movingLeft = True
+                isMovingLeft = True
+                isMovingRight = False
                 isIdleLeft = False
                 isIdleRight = False
+                isShootingLeft = False
+                isShootingRight = False
             if event.key == pg.K_RIGHT:
-                movingRight = True
+                isMovingLeft = False
+                isMovingRight = True
                 isIdleLeft = False
                 isIdleRight = False
-            if event.key == pg.K_SPACE and not player.isFlipped:
+                isShootingLeft = False
+                isShootingRight = False
+            if event.key == pg.K_SPACE and not player.isFlipped and not (isMovingLeft or isMovingRight):
+                isMovingLeft = False
+                isMovingRight = False
+                isIdleLeft = False
+                isIdleRight = False
                 isShootingLeft = True
-            if event.key == pg.K_SPACE and player.isFlipped:
+                isShootingRight = False
+            if event.key == pg.K_SPACE and player.isFlipped and not (isMovingLeft or isMovingRight):
+                isMovingLeft = False
+                isMovingRight = False
+                isIdleLeft = False
+                isIdleRight = False
+                isShootingLeft = False
                 isShootingRight = True
 
             if event.key == pg.K_UP:
@@ -132,20 +143,22 @@ while True:
 
         if event.type == pg.KEYUP:
             if event.key == pg.K_LEFT:
-                movingLeft = False
+                isMovingLeft = False
                 isIdleLeft = True
             if event.key == pg.K_RIGHT:
-                movingRight = False
+                isMovingRight = False
                 isIdleRight = True
             if event.key == pg.K_SPACE:
-                isShootingLeft = False
-                isShootingRight = False
-
+                if isShootingLeft:
+                    isShootingLeft = False
+                    isIdleLeft = True
+                if isShootingRight:
+                    isShootingRight = False
+                    isIdleRight = True
 
 
     if player_group.sprite.hp > 0:
         main_game()
-    
 
     pg.display.update()
     platform_group.draw(screen)

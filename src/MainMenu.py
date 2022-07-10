@@ -47,7 +47,7 @@ while True:
                 inst = True
 
         if event.type == pg.KEYUP:
-            if event.key == pg.K_i:   
+            if event.key == pg.K_i:
                 inst = False
 
     # if inst:
