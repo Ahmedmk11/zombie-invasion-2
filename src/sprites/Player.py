@@ -1,4 +1,5 @@
 import pygame as pg, os, InGame
+from sprites import Bullet as bt
 from pygame import Vector2 as vec
 pg.init()
 
@@ -33,9 +34,8 @@ def makeAnimationFlip(directory):
     return tempList
 
 class Player(pg.sprite.Sprite):
-    def __init__(self,screen):
+    def __init__(self):
         super().__init__()
-        self.screen = screen
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
         self.action = 0
@@ -48,6 +48,7 @@ class Player(pg.sprite.Sprite):
         self.isIdle = True
         self.isFlipped = False
         self.shootingCoolDown = 0
+        self.direction = 1
 
         self.walkLeft = makeAnimation('resources/images/sprites/heroine/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/heroine/walk/')
@@ -70,18 +71,20 @@ class Player(pg.sprite.Sprite):
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
         self.pos = vec(WIDTH/2,HEIGHT/2)
-        self.rect.midbottom = self.pos
+        
         
 
-    def move(self, movingLeft, movingRight):
+    def move(self):
         self.acc_vec = vec(0,ACCELERATION)
-        if movingLeft:
+        if InGame.movingLeft:
             self.acc_vec.x = -ACCELERATION
             self.isFlipped = False
+            self.direction = 1
 
-        if movingRight:
+        if InGame.movingRight:
             self.acc_vec.x = ACCELERATION
             self.isFlipped = True
+            self.direction = -1
 
         self.acc_vec.x += self.vel_vec.x * FRICTION
         self.vel_vec += self.acc_vec
@@ -104,8 +107,9 @@ class Player(pg.sprite.Sprite):
             # jump_sound.play()
             self.vel_vec.y = -15
 
-    def shoot():
-        pass
+    def shoot(self):
+        bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 7, self.direction)
+        InGame.bullet_group.add(bullet)
 
     def getDamage():
         pass
@@ -114,7 +118,7 @@ class Player(pg.sprite.Sprite):
         pass
 
     def draw(self):
-        self.screen.blit(self.image,self.rect)
+        InGame.screen.blit(self.image,self.rect)
 
     def update(self):
         animation_cooldown = 75
@@ -133,5 +137,5 @@ class Player(pg.sprite.Sprite):
     def update_action(self,new_action):
         if new_action != self.action:
             self.action = new_action
-            self.frame_index = 0
+            self.frameIndex = 0
             self.updateTime = pg.time.get_ticks()

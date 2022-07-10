@@ -27,13 +27,15 @@ mainScreen = pg.image.load('resources/images/world/level1/1.png')
 mainScreen = pg.transform.scale(mainScreen,(1316,740))
 
 
-player = pl.Player(screen)
+player = pl.Player()
 player_group = pg.sprite.GroupSingle()
 player_group.add(player)
 
 platform = pt.Platform()
 platform_group = pg.sprite.GroupSingle()
 platform_group.add(platform)
+
+bullet_group = pg.sprite.Group()
 
 
 def main_game():
@@ -42,48 +44,51 @@ def main_game():
     pg.draw.rect(screen,(255,0,0),(22,20,2 * player_group.sprite.hp,10))
     # screen.blit(heart,(0,2))
 
-    # bullet_group.draw(screen)  
+    bullet_group.draw(screen)  
     player.draw() 
     # hostiles_group.draw(screen)
     platform_group.draw(screen)
 
-    # bullet_group.update()
+    bullet_group.update()
     # hostiles_group.update()
     player_group.update()
 
     # player.screen_edge()
-    
-    # if shoot:
-    #     if player.shoot_cooldown == 0:
-    #         Fireball_sound = mixer.Sound('Fireball.wav')
-    #         Fireball_sound.play()
-    #         bullet = Bullets(player.rect.centerx - (0.5 * player.direction * player.rect.size[0]),player.rect.centery - 7,player.direction)
-    #         bullet_group.add(bullet)
-    #         player.shoot_cooldown = 37
 
+    if isShootingLeft or isShootingRight:
+        if player.shootingCoolDown == 0:
+            # Fireball_sound = mixer.Sound('Fireball.wav')
+            # Fireball_sound.play()
+            player.shoot()
+            player.shootingCoolDown = 37
 
 
 
     if isIdleLeft:
         player.update_action(0)
-    elif isIdleRight:
+    if isIdleRight:
         player.update_action(1)
-    elif movingLeft:
+    if movingLeft:
         player.update_action(2)
-    elif movingRight:
+    if movingRight:
         player.update_action(3)
-    elif isShootingLeft:
+    if isShootingLeft:
         player.update_action(4)
-    elif isShootingRight:
+    if isShootingRight:
         player.update_action(5)
-    elif isDeadLeft:
+    if isDeadLeft:
         player.update_action(6)
-    elif isDeadRight:
+    if isDeadRight:
         player.update_action(7)
 
+    player.move()
 
 
-    player.move(movingLeft,movingRight)
+
+    if player.pos.x > WIDTH:
+        player.pos.x = 0
+    if player.pos.x < 0:
+        player.pos.x = WIDTH
 
 
     # if pygame.sprite.spritecollide(player_group.sprite,hostiles_group,True):
@@ -98,29 +103,43 @@ def main_game():
 
 
 while True:
+    screen.fill((0,0,0))
+    screen.blit(mainScreen,(0,0))
+
+
     for event in pg.event.get():
-        if event.type == pg.QUIT:
-            mixer.music.stop()
-            break
+
+        if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+            pg.quit()
+            sys.exit()
 
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_LEFT:
                 movingLeft = True
+                isIdleLeft = False
+                isIdleRight = False
             if event.key == pg.K_RIGHT:
                 movingRight = True
-            # if event.key == pg.K_SPACE:
-            #     shoot = True
+                isIdleLeft = False
+                isIdleRight = False
+            if event.key == pg.K_SPACE and not player.isFlipped:
+                isShootingLeft = True
+            if event.key == pg.K_SPACE and player.isFlipped:
+                isShootingRight = True
 
             if event.key == pg.K_UP:
                     player_group.sprite.jump()
 
-            if event.type == pg.KEYUP:
-                if event.key == pg.K_LEFT:
-                    movingLeft = False
-                if event.key == pg.K_RIGHT:
-                    movingRight = False
-                # if event.key == pg.K_SPACE:
-                #     shoot = False
+        if event.type == pg.KEYUP:
+            if event.key == pg.K_LEFT:
+                movingLeft = False
+                isIdleLeft = True
+            if event.key == pg.K_RIGHT:
+                movingRight = False
+                isIdleRight = True
+            if event.key == pg.K_SPACE:
+                isShootingLeft = False
+                isShootingRight = False
 
 
 
@@ -130,5 +149,4 @@ while True:
 
     pg.display.update()
     platform_group.draw(screen)
-    screen.blit(mainScreen,(0,0))
     clock.tick(60)

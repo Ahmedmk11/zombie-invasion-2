@@ -17,6 +17,7 @@ mainScreen = pg.transform.scale(mainScreen,(1316,740))
 # mixer.music.load('MainMenu.wav')
 # mixer.music.play(-1)
 while True:
+    screen.fill((0,0,0))
 
     playFont = pg.font.Font('resources/fonts/Starjedi.ttf',60)
     playText = playFont.render("Play",True,(255,255,255))
@@ -39,6 +40,7 @@ while True:
         
         if event.type == pg.MOUSEBUTTONDOWN:
             if playRect.collidepoint(event.pos):
+                pg.quit()
                 import InGame
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_i:
