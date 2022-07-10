@@ -149,7 +149,6 @@ while True:
             if event.key == pg.K_UP:
                 player_group.sprite.jump()
 
-
             if event.key == pg.K_t:
                 player.hp = 0
 
