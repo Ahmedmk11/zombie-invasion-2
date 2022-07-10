@@ -118,6 +118,10 @@ class Player(pg.sprite.Sprite):
 
     def die(self):
         InGame.alive = False
+        if not InGame.zombie.isFlipped:
+            InGame.isIdleLeftZombie = True
+        else:
+            InGame.isIdleRightZombie = True
         if not self.isFlipped:
             InGame.isMovingLeft = False
             InGame.isMovingRight = False

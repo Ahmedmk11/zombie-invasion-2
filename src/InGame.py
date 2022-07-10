@@ -1,6 +1,7 @@
 import pygame as pg, math, random, sys
 from sprites import Player as pl
 from sprites import Platform as pt
+from sprites import Zombie as zm
 from pygame import mixer 
 pg.init()
 
@@ -8,6 +9,7 @@ playFont = pg.font.Font('resources/fonts/Starjedi.ttf',60)
 
 WIDTH = 1316
 HEIGHT = 740
+
 alive = True
 isIdleLeft = True
 isIdleRight = False
@@ -19,6 +21,17 @@ isShootingLeft = False
 isShootingRight = False
 isDeadLeft = False
 isDeadRight = False
+
+isIdleLeftZombie = False
+isIdleRightZombie = False
+isMovingLeftZombie = False
+isMovingRightZombie = False
+isAttackingLeftZombie = False
+isAttackingRightZombie = False
+isAppearingLeftZombie = False
+isAppearingRightZombie = False
+isDeadLeftZombie = False
+isDeadRightZombie = False
 
 screen = pg.display.set_mode((WIDTH,HEIGHT))
 heart = pg.transform.flip(pg.image.load('resources/images/sprites/heroine/heart.png'),True,False)
@@ -35,6 +48,10 @@ mainScreen = pg.transform.scale(mainScreen,(1316,740))
 player = pl.Player()
 player_group = pg.sprite.GroupSingle()
 player_group.add(player)
+
+zombies_group = pg.sprite.Group()
+hostile_event = pg.USEREVENT
+pg.time.set_timer(hostile_event,400)
 
 platform = pt.Platform()
 platform_group = pg.sprite.GroupSingle()
@@ -57,11 +74,11 @@ def main_game():
 
     bullet_group.draw(screen)  
     player.draw() 
-    # hostiles_group.draw(screen)
+    zombies_group.draw(screen)
     platform_group.draw(screen)
 
     bullet_group.update()
-    # hostiles_group.update()
+    zombies_group.update()
     player_group.update()
 
     if isIdleLeft:
@@ -99,18 +116,29 @@ def main_game():
     # if pygame.sprite.spritecollide(player_group.sprite,hostiles_group,True):
     #     player_group.sprite.get_damage(10)
 
-
-
-    # if pygame.sprite.groupcollide(hostiles_group, bullet_group,True,True):
     #     zombie_die = mixer.Sound('Zombie.wav')
     #     zombie_die.play()
+        
 
 while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
     screen.blit(heart,(0,2))
 
+    random_side = random.randrange(0,2)
     for event in pg.event.get():
+
+        if event.type == hostile_event:
+            if random_side == 0: 
+                random_xpos = [-20,180]
+                isFlippedZombie = True
+            else:
+                random_xpos = [1136,1336]
+                isFlippedZombie = False
+                
+            random_speed = [1,2]
+            zombie = zm.Zombie(random.choice(random_xpos),555,random.choice(random_speed),isFlippedZombie)
+            zombies_group.add(zombie)
 
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             pg.quit()
@@ -166,12 +194,27 @@ while True:
                 if isShootingRight:
                     isShootingRight = False
                     isIdleRight = True
+    
+    shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
+    
+    if len(shotZombieDict) != 0:
+        
+        shotZombie = list(shotZombieDict.keys())[0]
+        
+        if shotZombie.isDying:
+            if not shotZombie.isFlipped:
+                shotZombie.update_action(8)
+            elif shotZombie.isFlipped:
+                shotZombie.update_action(9)
+
+        shotZombie.hp = 0
 
     main_game()
 
     if player_group.sprite.hp > 0:
         pass
     else:
+        pg.time.set_timer(hostile_event,0)
         player.die()
         game_over()
 
