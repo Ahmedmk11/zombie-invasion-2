@@ -1,12 +1,15 @@
+import pathlib
+import pickle
 import pygame as pg, math, random, sys
 from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
-from pygame import mixer 
+from pygame import mixer
 pg.init()
 
 WIDTH = 1316
 HEIGHT = 740
+currScore = 0
 
 alive = True
 isIdleLeft = True
@@ -42,6 +45,9 @@ pg.mouse.set_visible(True)
 mainScreen = pg.image.load('resources/images/world/level1/1.png')
 mainScreen = pg.transform.scale(mainScreen,(1316,740))
 
+abspath = pathlib.Path("mode.pickle").absolute()
+readMode = open(str(abspath), "rb")
+mode = pickle.load(readMode)
 
 player = pl.Player()
 player_group = pg.sprite.GroupSingle()
@@ -62,7 +68,7 @@ def game_over():
     text = gameOverFont.render("Game Over",True,(255,255,255))
     text_rect = text.get_rect(center = (653,243))
     screen.blit(text,text_rect)
-
+    currScore = 0
 
 
 def main_game():
@@ -110,14 +116,6 @@ def main_game():
         player.pos.x = 0
     if player.pos.x < 0:
         player.pos.x = WIDTH
-
-
-    # if pygame.sprite.spritecollide(player_group.sprite,hostiles_group,True):
-    #     player_group.sprite.get_damage(10)
-
-    #     zombie_die = mixer.Sound('Zombie.wav')
-    #     zombie_die.play()
-        
 
 while True:
     screen.fill((0,0,0))
@@ -208,14 +206,26 @@ while True:
 
         shotZombie.hp = 0
 
-    main_game()
-
-    if player_group.sprite.hp > 0:
-        pass
+    if mode == 1:
+        if player_group.sprite.hp <= 0:
+            pg.time.set_timer(hostile_event,0)
+            player.die()
+            game_over()
     else:
-        pg.time.set_timer(hostile_event,0)
-        player.die()
-        game_over()
+        fontScore = pg.font.Font('resources/fonts/font.ttf',20)
+        scoreText = fontScore.render(f"Score {currScore}",True,(255,255,255))
+        scoreTextRect = scoreText.get_rect(center = (1200,40))
+        screen.blit(scoreText,scoreTextRect)
+        
+        if player_group.sprite.hp > 0:
+            currScore += 2
+        else:
+            pg.time.set_timer(hostile_event,0)
+            player.die()
+            game_over()
+
+
+    main_game()
 
     pg.display.update()
     platform_group.draw(screen)

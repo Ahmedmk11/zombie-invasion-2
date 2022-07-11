@@ -1,3 +1,4 @@
+import pickle
 from turtle import width
 import pygame as pg,sys
 from pygame import mixer
@@ -14,7 +15,7 @@ pg.display.set_caption("Zombie Invasion: Apocalypse")
 clock = pg.time.Clock()
 pg.mouse.set_visible(True)
 mainScreen = pg.image.load('resources/images/world/level6/6.png')
-mainScreen = pg.transform.scale(mainScreen,(1316,740))
+mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT))
 
 
 # mixer.music.load('MainMenu.wav')
@@ -23,19 +24,24 @@ while True:
     screen.fill((0,0,0))
 
     playFont = pg.font.Font('resources/fonts/font.ttf',70)
-    playText = playFont.render("Play",True,(255,255,255))
-    playRect = playText.get_rect(center = (640,300))
+    playText1 = playFont.render("Story Mode",True,(255,255,255))
+    playRect1 = playText1.get_rect(center = (640,300))
 
-    leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',48)
+    playFont = pg.font.Font('resources/fonts/font.ttf',70)
+    playText2 = playFont.render("Survival Mode",True,(255,255,255))
+    playRect2 = playText2.get_rect(center = (640,360))
+
+    leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
     leaderBoardText = leaderBoardFont.render("Leaderboard",True,(255,255,255))
-    leaderBoardRect = leaderBoardText.get_rect(center = (640,360))
+    leaderBoardRect = leaderBoardText.get_rect(center = (1200,20))
 
     mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
     titleText = mainFont.render("Zombie Invasion",True,(255,255,255))
     titleRect = titleText.get_rect(center = (WIDTH/2,100))
 
     screen.blit(mainScreen,(0,0))
-    screen.blit(playText,playRect)
+    screen.blit(playText1,playRect1)
+    screen.blit(playText2,playRect2)
     screen.blit(leaderBoardText,leaderBoardRect)
     screen.blit(titleText,titleRect)
 
@@ -46,7 +52,13 @@ while True:
             pg.quit()
             sys.exit()
         
-        if event.type == pg.MOUSEBUTTONDOWN and playRect.collidepoint(event.pos) or event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+        if event.type == pg.MOUSEBUTTONDOWN and (playRect1.collidepoint(event.pos) or playRect2.collidepoint(event.pos)):
+            if playRect1.collidepoint(event.pos):
+                with open("mode.pickle", "wb") as modes:
+                    pickle.dump(1, modes)
+            else:
+                with open("mode.pickle", "wb") as modes:
+                    pickle.dump(2, modes)
             pg.quit()
             import InGame
         if event.type == pg.KEYDOWN:
@@ -63,19 +75,17 @@ while True:
 
         instructions = instHead.render("Welcome to Zombie Invasion: Apocalypse",True,(255,255,255))
         instructions1 = instFont.render("Press 'Play' to start the game",True,(255,255,255))
-        instructions2 = instFont.render("To play again, press anywhere on the 'Game Over' screen",True,(255,255,255))
-        instructions3 = instFont.render("To exit the game, press 'Escape' or close the window",True,(255,255,255))
-        instructions4 = instFont.render("Press 'Space' to shoot, 'Left' and 'Right' to move and 'Up' to jump",True,(255,255,255))
-        instructions5 = instFont.render("Keep Sky alive as long as you can!",True,(255,255,255))
-        instructions6 = instFont.render("Have Fun!",True,(255,255,255))
+        instructions2 = instFont.render("To exit the game, press 'Escape' or close the window",True,(255,255,255))
+        instructions3 = instFont.render("Press 'S' to shoot, 'Left' and 'Right' to move and 'Up' to jump",True,(255,255,255))
+        instructions4 = instFont.render("Difficulty keeps increasing each level",True,(255,255,255))
+        instructions5 = instFont.render("Have Fun!",True,(255,255,255))
 
-        screen.blit(instructions,(10,60))
-        screen.blit(instructions1,(15,120))
-        screen.blit(instructions2,(15,160))
-        screen.blit(instructions3,(15,200))
-        screen.blit(instructions4,(15,240))
-        screen.blit(instructions5,(15,280))
-        screen.blit(instructions6,(15,320)) 
+        screen.blit(instructions,(10,160))
+        screen.blit(instructions1,(15,220))
+        screen.blit(instructions2,(15,260))
+        screen.blit(instructions3,(15,300))
+        screen.blit(instructions4,(15,340))
+        screen.blit(instructions5,(15,380))
 
     pg.display.update()
     clock.tick(60)

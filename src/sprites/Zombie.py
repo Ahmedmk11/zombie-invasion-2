@@ -104,7 +104,7 @@ class Zombie(pg.sprite.Sprite):
         elif self.appearing:
             animation_cooldown = 90
         else:
-            animation_cooldown = 75
+            animation_cooldown = 90
 
         self.image = self.anime[self.action][self.frameIndex]
 
