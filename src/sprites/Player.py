@@ -1,6 +1,6 @@
-import pygame as pg, os, InGame
 from sprites import Bullet as bt
 from pygame import Vector2 as vec
+import pygame as pg, os, InGame
 pg.init()
 
 WIDTH = 1316

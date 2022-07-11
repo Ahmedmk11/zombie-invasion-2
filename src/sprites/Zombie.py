@@ -1,6 +1,5 @@
 import pygame as pg
-import os
-import InGame
+import os, InGame
 pg.init()
 
 def makeAnimation(directory):
@@ -103,6 +102,8 @@ class Zombie(pg.sprite.Sprite):
             animation_cooldown = 125
         elif self.appearing:
             animation_cooldown = 90
+        elif self.isDying:
+            animation_cooldown = 60
         else:
             animation_cooldown = 90
 

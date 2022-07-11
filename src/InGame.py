@@ -1,10 +1,8 @@
-import pathlib
-import pickle
-import pygame as pg, math, random, sys
 from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
 from pygame import mixer
+import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
 WIDTH = 1316
@@ -224,10 +222,8 @@ while True:
             pg.time.set_timer(hostile_event,0)
             player.die()
             game_over()
-
-
+    
     main_game()
-
     pg.display.update()
     platform_group.draw(screen)
     clock.tick(60)

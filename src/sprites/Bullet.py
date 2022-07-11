@@ -1,15 +1,6 @@
 from random import randrange
-import pygame as pg, os, InGame
-from pygame import Vector2 as vec
-from sprites import Player as pl
+import pygame as pg, InGame
 pg.init()
-
-WIDTH = 1316
-HEIGHT = 526
-ACCELERATION = 0.7
-FRICTION = -0.12
-GRAVITY = 9.8
-
 class Bullet(pg.sprite.Sprite):
     def __init__(self,x,y,direction):
         super().__init__()
@@ -25,7 +16,6 @@ class Bullet(pg.sprite.Sprite):
 
     def update(self):
         self.rect.x -= (self.direction * self.speed)
-
-        if self.rect.left >= WIDTH+5 or self.rect.right <= -5:  
+        if self.rect.left >= 1321 or self.rect.right <= -5:  
             self.kill()
         InGame.screen.blit(self.image,self.rect)

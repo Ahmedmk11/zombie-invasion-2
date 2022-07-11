@@ -1,6 +1,5 @@
-import pickle
-import pygame as pg,sys
 from pygame import mixer
+import pygame as pg, sys, pickle
 pg.init()
 
 inst = False
@@ -16,7 +15,7 @@ pg.mouse.set_visible(True)
 mainScreen = pg.image.load('resources/images/world/level6/6.png')
 mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT))
 
-cursor = pg.image.load('resources/images/app/cursor/cursor.png')
+cursor = pg.image.load('resources/images/app/cursor.png')
 cursorRect = cursor.get_rect()
 pg.mouse.set_visible(False)
 
@@ -29,7 +28,6 @@ leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
 while True:
     screen.fill((0,0,0))
 
-
     playText1 = playFont1.render("Story Mode",True,(255,255,255))
     playRect1 = playText1.get_rect(center = (640,280))
 
@@ -39,28 +37,24 @@ while True:
     leaderBoardText = leaderBoardFont.render("Leaderboard",True,(255,255,255))
     leaderBoardRect = leaderBoardText.get_rect(center = (1200,20))
 
-    if playRect1.collidepoint(pg.mouse.get_pos()):
+    if playRect1.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
         playFont1 = pg.font.Font('resources/fonts/font.ttf',80)
     else:
         playFont1 = pg.font.Font('resources/fonts/font.ttf',70)
 
-    if playRect2.collidepoint(pg.mouse.get_pos()):
+    if playRect2.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
         playFont2 = pg.font.Font('resources/fonts/font.ttf',80)
     else:
         playFont2 = pg.font.Font('resources/fonts/font.ttf',70)
     
-    if leaderBoardRect.collidepoint(pg.mouse.get_pos()):
+    if leaderBoardRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
         leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',40)
     else:
         leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
 
-    
-
     mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
     titleText = mainFont.render("Zombie Invasion",True,(255,255,255))
     titleRect = titleText.get_rect(center = (WIDTH/2,100))
-    
-
 
     cursorRect.center = pg.mouse.get_pos()
         
@@ -69,7 +63,7 @@ while True:
     screen.blit(playText2,playRect2)
     screen.blit(leaderBoardText,leaderBoardRect)
     screen.blit(titleText,titleRect)
-    
+
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             pg.quit()
