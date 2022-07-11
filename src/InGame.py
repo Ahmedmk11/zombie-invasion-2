@@ -51,7 +51,7 @@ player_group.add(player)
 
 zombies_group = pg.sprite.Group()
 hostile_event = pg.USEREVENT
-pg.time.set_timer(hostile_event,400)
+pg.time.set_timer(hostile_event,600)
 
 platform = pt.Platform()
 platform_group = pg.sprite.GroupSingle()
@@ -130,13 +130,13 @@ while True:
 
         if event.type == hostile_event:
             if random_side == 0: 
-                random_xpos = [-20,180]
+                random_xpos = range(-20,180)
                 isFlippedZombie = True
             else:
-                random_xpos = [1136,1336]
+                random_xpos = range(1136,1336)
                 isFlippedZombie = False
                 
-            random_speed = [1,2]
+            random_speed = [2]
             zombie = zm.Zombie(random.choice(random_xpos),555,random.choice(random_speed),isFlippedZombie)
             zombies_group.add(zombie)
 
@@ -159,14 +159,14 @@ while True:
                 isIdleRight = False
                 isShootingLeft = False
                 isShootingRight = False
-            if event.key == pg.K_SPACE and not player.isFlipped and not (isMovingLeft or isMovingRight):
+            if event.key == pg.K_SPACE and not player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
                 isIdleLeft = False
                 isIdleRight = False
                 isShootingLeft = True
                 isShootingRight = False
-            if event.key == pg.K_SPACE and player.isFlipped and not (isMovingLeft or isMovingRight):
+            if event.key == pg.K_SPACE and player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
                 isIdleLeft = False

@@ -32,6 +32,7 @@ class Zombie(pg.sprite.Sprite):
         self.speed = speed
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
+        self.attackCoolDown = 0
         self.isFlipped = isFlipped
         self.appearing = True
         self.walking = False
@@ -83,9 +84,6 @@ class Zombie(pg.sprite.Sprite):
         if self.isFlipped:
             self.rect.centerx += self.speed
 
-    def appear():
-        pass
-
     def attack(self):
         if self.attacking and not self.hp == 0:
             if not self.isFlipped:
@@ -94,19 +92,19 @@ class Zombie(pg.sprite.Sprite):
                 self.update_action(5)
 
     def checkAttackRange(self):
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) <= 50):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx > InGame.player.rect.centerx):
             return True
-        else:
-            return False
-    
-    def die(self):
-        pass
-
-    def draw():
-        pass
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 50) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+            return True
+        return False
 
     def update(self):
-        animation_cooldown = 75
+        if self.attacking:
+            animation_cooldown = 125
+        elif self.appearing:
+            animation_cooldown = 90
+        else:
+            animation_cooldown = 75
 
         self.image = self.anime[self.action][self.frameIndex]
 
@@ -115,17 +113,11 @@ class Zombie(pg.sprite.Sprite):
             
             if self.appearing and self.frameIndex == len(self.anime[self.action]) - 1:
                 self.appearing = False
-                if (self.checkAttackRange()):
-                    self.walking = False
-                    self.attacking = True
-                else:
-                    self.walking = True
-                    self.attacking = True
+                self.walking = True
             else:
                 self.frameIndex += 1
 
             if self.frameIndex == len(self.anime[self.action]) - 1 and self.hp == 0 and self.isDying:
-                self.attacking = False
                 self.isDying = False
                 self.kill()
             else:
@@ -136,9 +128,18 @@ class Zombie(pg.sprite.Sprite):
 
         if InGame.alive and not self.attacking:
             self.move()
+        if not self.appearing:
+            if self.checkAttackRange():
+                self.attacking = True
+                self.walking = False
+                self.attack()
+            else:
+                self.attacking = False
+                self.walking = True
 
-        # if self.shootingCoolDown > 0:
-        #     self.shootingCoolDown -= 1
+
+        if self.attackCoolDown > 0:
+            self.attackCoolDown -= 1
 
         if self.rect.centerx >= 1320 or self.rect.centerx <= -10:
             self.kill()
@@ -147,11 +148,6 @@ class Zombie(pg.sprite.Sprite):
             self.update_action(0)
         if self.isFlipped and not InGame.alive:
             self.update_action(1)
-
-        if InGame.isAttackingLeftZombie:
-            self.update_action(4)
-        if InGame.isAttackingRightZombie:
-            self.update_action(5)
 
     def update_action(self,new_action):
         if new_action != self.action:
