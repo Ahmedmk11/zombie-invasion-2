@@ -112,7 +112,7 @@ class Player(pg.sprite.Sprite):
         InGame.bullet_group.add(bullet)
 
     def getDamage(self, val):
-        self.health -= val
+        self.hp -= val
         # hit_sound = mixer.Sound('Hit.wav')
         # hit_sound.play()
 

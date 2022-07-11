@@ -123,6 +123,9 @@ class Zombie(pg.sprite.Sprite):
             else:
                 self.frameIndex += 1
 
+            if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
+                InGame.player.getDamage(5)
+
         if self.frameIndex >= len(self.anime[self.action]):
             self.frameIndex = 0
 

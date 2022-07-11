@@ -159,14 +159,14 @@ while True:
                 isIdleRight = False
                 isShootingLeft = False
                 isShootingRight = False
-            if event.key == pg.K_SPACE and not player.isFlipped:
+            if event.key == pg.K_s and not player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
                 isIdleLeft = False
                 isIdleRight = False
                 isShootingLeft = True
                 isShootingRight = False
-            if event.key == pg.K_SPACE and player.isFlipped:
+            if event.key == pg.K_s and player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
                 isIdleLeft = False
@@ -187,7 +187,7 @@ while True:
             if event.key == pg.K_RIGHT:
                 isMovingRight = False
                 isIdleRight = True
-            if event.key == pg.K_SPACE:
+            if event.key == pg.K_s:
                 if isShootingLeft:
                     isShootingLeft = False
                     isIdleLeft = True

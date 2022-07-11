@@ -38,10 +38,9 @@ while True:
             pg.quit()
             sys.exit()
         
-        if event.type == pg.MOUSEBUTTONDOWN:
-            if playRect.collidepoint(event.pos):
-                pg.quit()
-                import InGame
+        if event.type == pg.MOUSEBUTTONDOWN and playRect.collidepoint(event.pos) or event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+            pg.quit()
+            import InGame
         if event.type == pg.KEYDOWN:
             if event.key == pg.K_i:
                 inst = True
@@ -50,23 +49,25 @@ while True:
             if event.key == pg.K_i:
                 inst = False
 
-    # if inst:
-        # instructions_rect = pg.draw.rect(screen,(57,61,71),(0,200,550,400))
-        # instructions = playFont.render("Welcome to Zombie Invasion!",True,(255,255,255))
-        # instructions1 = playFont.render("Press 'Play' to start the game",True,(255,255,255))
-        # instructions2 = playFont.render("To play again, press anywhere on the 'Game Over' screen",True,(255,255,255))
-        # instructions3 = playFont.render("To exit the game, press 'Escape' or close the window",True,(255,255,255))
-        # instructions4 = playFont.render("Press 'Space' to shoot, 'Left' and 'Right' to move and 'Up' to jump",True,(255,255,255))
-        # instructions5 = playFont.render("Keep Sky alive as long as you can!",True,(255,255,255))
-        # instructions6 = playFont.render("Have Fun!",True,(255,255,255))
+    if inst:
+        instFont = pg.font.Font('resources/fonts/Starjedi.ttf',25)
 
-        # screen.blit(instructions,(10,220))
-        # screen.blit(instructions1,(15,280))
-        # screen.blit(instructions2,(15,320))
-        # screen.blit(instructions3,(15,360))
-        # screen.blit(instructions4,(15,400))
-        # screen.blit(instructions5,(15,440))
-        # screen.blit(instructions6,(15,480)) 
+        instructions_rect = pg.draw.rect(screen,(57,61,71),(0,200,550,400))
+        instructions = instFont.render("Welcome to Zombie Invasion: Apocalypse",True,(255,255,255))
+        instructions1 = instFont.render("Press 'Play' to start the game",True,(255,255,255))
+        instructions2 = instFont.render("To play again, press anywhere on the 'Game Over' screen",True,(255,255,255))
+        instructions3 = instFont.render("To exit the game, press 'Escape' or close the window",True,(255,255,255))
+        instructions4 = instFont.render("Press 'Space' to shoot, 'Left' and 'Right' to move and 'Up' to jump",True,(255,255,255))
+        instructions5 = instFont.render("Keep Sky alive as long as you can!",True,(255,255,255))
+        instructions6 = instFont.render("Have Fun!",True,(255,255,255))
+
+        screen.blit(instructions,(10,220))
+        screen.blit(instructions1,(15,280))
+        screen.blit(instructions2,(15,320))
+        screen.blit(instructions3,(15,360))
+        screen.blit(instructions4,(15,400))
+        screen.blit(instructions5,(15,440))
+        screen.blit(instructions6,(15,480)) 
 
     pg.display.update()
     clock.tick(60)
