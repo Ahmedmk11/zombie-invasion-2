@@ -1,5 +1,4 @@
 import pickle
-from turtle import width
 import pygame as pg,sys
 from pygame import mixer
 pg.init()
@@ -17,41 +16,65 @@ pg.mouse.set_visible(True)
 mainScreen = pg.image.load('resources/images/world/level6/6.png')
 mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT))
 
+cursor = pg.image.load('resources/images/app/cursor/cursor.png')
+cursorRect = cursor.get_rect()
+pg.mouse.set_visible(False)
+
+playFont1 = pg.font.Font('resources/fonts/font.ttf',70)
+playFont2 = pg.font.Font('resources/fonts/font.ttf',70)
+leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
 
 # mixer.music.load('MainMenu.wav')
 # mixer.music.play(-1)
 while True:
     screen.fill((0,0,0))
 
-    playFont = pg.font.Font('resources/fonts/font.ttf',70)
-    playText1 = playFont.render("Story Mode",True,(255,255,255))
-    playRect1 = playText1.get_rect(center = (640,300))
 
-    playFont = pg.font.Font('resources/fonts/font.ttf',70)
-    playText2 = playFont.render("Survival Mode",True,(255,255,255))
+    playText1 = playFont1.render("Story Mode",True,(255,255,255))
+    playRect1 = playText1.get_rect(center = (640,280))
+
+    playText2 = playFont2.render("Survival Mode",True,(255,255,255))
     playRect2 = playText2.get_rect(center = (640,360))
 
-    leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
     leaderBoardText = leaderBoardFont.render("Leaderboard",True,(255,255,255))
     leaderBoardRect = leaderBoardText.get_rect(center = (1200,20))
+
+    if playRect1.collidepoint(pg.mouse.get_pos()):
+        playFont1 = pg.font.Font('resources/fonts/font.ttf',80)
+    else:
+        playFont1 = pg.font.Font('resources/fonts/font.ttf',70)
+
+    if playRect2.collidepoint(pg.mouse.get_pos()):
+        playFont2 = pg.font.Font('resources/fonts/font.ttf',80)
+    else:
+        playFont2 = pg.font.Font('resources/fonts/font.ttf',70)
+    
+    if leaderBoardRect.collidepoint(pg.mouse.get_pos()):
+        leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',40)
+    else:
+        leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
+
+    
 
     mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
     titleText = mainFont.render("Zombie Invasion",True,(255,255,255))
     titleRect = titleText.get_rect(center = (WIDTH/2,100))
+    
 
+
+    cursorRect.center = pg.mouse.get_pos()
+        
     screen.blit(mainScreen,(0,0))
     screen.blit(playText1,playRect1)
     screen.blit(playText2,playRect2)
     screen.blit(leaderBoardText,leaderBoardRect)
     screen.blit(titleText,titleRect)
-
-
-
+    
     for event in pg.event.get():
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             pg.quit()
             sys.exit()
-        
+
         if event.type == pg.MOUSEBUTTONDOWN and (playRect1.collidepoint(event.pos) or playRect2.collidepoint(event.pos)):
             if playRect1.collidepoint(event.pos):
                 with open("mode.pickle", "wb") as modes:
@@ -86,6 +109,7 @@ while True:
         screen.blit(instructions3,(15,300))
         screen.blit(instructions4,(15,340))
         screen.blit(instructions5,(15,380))
-
+    
+    screen.blit(cursor, cursorRect)
     pg.display.update()
     clock.tick(60)

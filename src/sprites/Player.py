@@ -70,7 +70,7 @@ class Player(pg.sprite.Sprite):
 
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.pos = vec(WIDTH/2,HEIGHT/2)
+        self.pos = vec(WIDTH/2,555)
         
         
 

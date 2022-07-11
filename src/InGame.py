@@ -10,6 +10,7 @@ pg.init()
 WIDTH = 1316
 HEIGHT = 740
 currScore = 0
+pg.mouse.set_visible(False)
 
 alive = True
 isIdleLeft = True
@@ -134,7 +135,7 @@ while True:
                 isFlippedZombie = False
                 
             random_speed = [2]
-            zombie = zm.Zombie(random.choice(random_xpos),555,random.choice(random_speed),isFlippedZombie)
+            zombie = zm.Zombie(random.choice(random_xpos),random.choice(random_speed),isFlippedZombie)
             zombies_group.add(zombie)
 
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
@@ -191,7 +192,7 @@ while True:
                 if isShootingRight:
                     isShootingRight = False
                     isIdleRight = True
-    
+
     shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
     
     if len(shotZombieDict) != 0:

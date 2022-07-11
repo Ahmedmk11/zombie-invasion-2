@@ -27,7 +27,7 @@ def makeAnimationFlip(directory):
     
     return tempList
 class Zombie(pg.sprite.Sprite):
-    def __init__(self,xpos,ypos,speed, isFlipped):
+    def __init__(self,xpos,speed,isFlipped):
         super().__init__()
         self.speed = speed
         self.updateTime = pg.time.get_ticks()
@@ -69,7 +69,7 @@ class Zombie(pg.sprite.Sprite):
         
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (xpos,ypos)
+        self.rect.midbottom = (xpos,555)
         
     def move(self):
 
@@ -125,6 +125,8 @@ class Zombie(pg.sprite.Sprite):
 
             if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
                 InGame.player.getDamage(10)
+            if pg.sprite.spritecollide(InGame.player_group.sprite,InGame.zombies_group,False):
+                InGame.player_group.sprite.getDamage(0.1)
 
         if self.frameIndex >= len(self.anime[self.action]):
             self.frameIndex = 0
