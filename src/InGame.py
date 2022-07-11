@@ -5,8 +5,6 @@ from sprites import Zombie as zm
 from pygame import mixer 
 pg.init()
 
-playFont = pg.font.Font('resources/fonts/Starjedi.ttf',60)
-
 WIDTH = 1316
 HEIGHT = 740
 
@@ -60,7 +58,8 @@ platform_group.add(platform)
 bullet_group = pg.sprite.Group()
 
 def game_over():
-    text = playFont.render("Game Over",True,(255,255,255))
+    gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
+    text = gameOverFont.render("Game Over",True,(255,255,255))
     text_rect = text.get_rect(center = (653,243))
     screen.blit(text,text_rect)
 
