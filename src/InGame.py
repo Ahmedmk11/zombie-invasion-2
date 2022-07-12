@@ -20,6 +20,9 @@ isIdleLeft = False
 isIdleRight = False
 isShootingLeft = False
 isShootingRight = False
+isShootingLeftUp = False
+isShootingRightUp = False
+
 isDeadLeft = False
 isDeadRight = False
 
@@ -120,9 +123,9 @@ def main_game():
         player.update_action(2)
     if isMovingRight:
         player.update_action(3)
-    if isShootingLeft and not isMovingLeft and not isMovingRight:
+    if isShootingLeft:
         player.update_action(4)
-    if isShootingRight and not isMovingLeft and not isMovingRight:
+    if isShootingRight:
         player.update_action(5)
     if isDeadLeft:
         player.update_action(6)
@@ -219,11 +222,11 @@ while True:
                 isMovingRight = False
                 isIdleRight = True
             if event.key == pg.K_s:
-                isShootingLeft = False
-                isShootingRight = False
                 if isShootingLeft and not isMovingLeft:
+                    isShootingLeft = False
                     isIdleLeft = True
                 if isShootingRight and not isMovingRight:
+                    isShootingRight = False
                     isIdleRight = True
 
     shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
