@@ -48,6 +48,8 @@ class Player(pg.sprite.Sprite):
         self.isIdle = True
         self.isFlipped = False
         self.shootingCoolDown = 0
+        self.shootingCoolDownUp = 0
+        
         self.direction = 1
 
         self.walkLeft = makeAnimation('resources/images/sprites/heroine/walk/')
@@ -107,8 +109,8 @@ class Player(pg.sprite.Sprite):
             # jump_sound.play()
             self.vel_vec.y = -15
 
-    def shoot(self):
-        bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 7, self.direction)
+    def shoot(self,angle):
+        bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 12, self.direction, angle)
         InGame.bullet_group.add(bullet)
 
     def getDamage(self, val):
@@ -158,6 +160,8 @@ class Player(pg.sprite.Sprite):
 
         if self.shootingCoolDown > 0:
             self.shootingCoolDown -= 1
+        if self.shootingCoolDownUp > 0:
+            self.shootingCoolDownUp -= 1
 
     def update_action(self,new_action):
         if new_action != self.action:

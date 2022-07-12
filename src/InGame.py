@@ -123,9 +123,9 @@ def main_game():
         player.update_action(2)
     if isMovingRight:
         player.update_action(3)
-    if isShootingLeft:
+    if isShootingLeft or isShootingLeftUp:
         player.update_action(4)
-    if isShootingRight:
+    if isShootingRight or isShootingRightUp:
         player.update_action(5)
     if isDeadLeft:
         player.update_action(6)
@@ -138,8 +138,17 @@ def main_game():
         if player.shootingCoolDown == 0:
             # Fireball_sound = mixer.Sound('Fireball.wav')
             # Fireball_sound.play()
-            player.shoot()
+            player.shoot(False)
             player.shootingCoolDown = 25
+
+            
+
+    if isShootingLeftUp or isShootingRightUp:
+        if player.shootingCoolDownUp == 0:
+            # Fireball_sound = mixer.Sound('Fireball.wav')
+            # Fireball_sound.play()
+            player.shoot(True)
+            player.shootingCoolDownUp = 25
 
     if player.pos.x > WIDTH:
         player.pos.x = 0
@@ -186,6 +195,9 @@ while True:
                 isIdleRight = False
                 isShootingLeft = False
                 isShootingRight = False
+                isShootingLeftUp = False
+                isShootingRightUp = False
+
             if event.key == pg.K_RIGHT:
                 isMovingLeft = False
                 isMovingRight = True
@@ -193,6 +205,9 @@ while True:
                 isIdleRight = False
                 isShootingLeft = False
                 isShootingRight = False
+                isShootingLeftUp = False
+                isShootingRightUp = False
+
             if event.key == pg.K_s and not player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
@@ -200,6 +215,9 @@ while True:
                 isIdleRight = False
                 isShootingLeft = True
                 isShootingRight = False
+                isShootingLeftUp = False
+                isShootingRightUp = False
+
             if event.key == pg.K_s and player.isFlipped:
                 isMovingLeft = False
                 isMovingRight = False
@@ -207,7 +225,29 @@ while True:
                 isIdleRight = False
                 isShootingLeft = False
                 isShootingRight = True
+                isShootingLeftUp = False
+                isShootingRightUp = False
 
+            if event.key == pg.K_w and not player.isFlipped:
+                isMovingLeft = False
+                isMovingRight = False
+                isIdleLeft = False
+                isIdleRight = False
+                isShootingLeft = False
+                isShootingRight = False
+                isShootingLeftUp = True
+                isShootingRightUp = False
+
+            if event.key == pg.K_w and player.isFlipped:
+                isMovingLeft = False
+                isMovingRight = False
+                isIdleLeft = False
+                isIdleRight = False
+                isShootingLeft = False
+                isShootingRight = False
+                isShootingLeftUp = False
+                isShootingRightUp = True
+            
             if event.key == pg.K_UP:
                 player_group.sprite.jump()
 
@@ -215,10 +255,10 @@ while True:
                 player.hp = 0
 
         if event.type == pg.KEYUP and alive:
-            if event.key == pg.K_LEFT and not isMovingRight and not isShootingLeft:
+            if event.key == pg.K_LEFT and not isMovingRight and not isShootingLeft and not isShootingLeftUp:
                 isMovingLeft = False
                 isIdleLeft = True
-            if event.key == pg.K_RIGHT and not isMovingLeft and not isShootingRight:
+            if event.key == pg.K_RIGHT and not isMovingLeft and not isShootingRight and not isShootingRightUp:
                 isMovingRight = False
                 isIdleRight = True
             if event.key == pg.K_s:
@@ -228,6 +268,16 @@ while True:
                 if isShootingRight and not isMovingRight:
                     isShootingRight = False
                     isIdleRight = True
+            
+            if event.key == pg.K_w:
+                if isShootingLeftUp and not isMovingLeft:
+                    isShootingLeftUp = False
+                    isIdleLeft = True
+                if isShootingRightUp and not isMovingRight:
+                    isShootingRightUp = False
+                    isIdleRight = True
+            
+
 
     shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
     
@@ -299,6 +349,7 @@ while True:
     
     main_game()
     platform_group.draw(screen)
-    screen.blit(cursor, cursorRect)
+    if not alive: #boss
+        screen.blit(cursor, cursorRect)
     pg.display.update()
     clock.tick(60)
