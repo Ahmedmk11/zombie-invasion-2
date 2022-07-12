@@ -7,7 +7,7 @@ WIDTH = 1316
 HEIGHT = 526
 ACCELERATION = 0.7
 FRICTION = -0.12
-GRAVITY = 9.8
+GRAVITY = 11
 
 def makeAnimation(directory):
     list1 = os.listdir(directory)
@@ -39,7 +39,7 @@ class Player(pg.sprite.Sprite):
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
         self.action = 0
-        self.hp = 100
+        self.hp = 200
         self.vel_vec = vec(0,0)
         self.acc_vec = vec(0,0)
         self.isShooting = False

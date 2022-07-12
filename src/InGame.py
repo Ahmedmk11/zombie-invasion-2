@@ -8,7 +8,8 @@ pg.init()
 WIDTH = 1316
 HEIGHT = 740
 currScore = 0
-pg.mouse.set_visible(False)
+level = 1
+lives = 3
 
 alive = True
 isIdleLeft = True
@@ -40,21 +41,26 @@ appIcon = pg.image.load('resources/images/app/icon.png')
 pg.display.set_icon(appIcon)
 pg.display.set_caption("Zombie Invasion: Apocalypse")
 clock = pg.time.Clock()
-pg.mouse.set_visible(True)
+pg.mouse.set_visible(False)
 mainScreen = pg.image.load('resources/images/world/level1/1.png')
 mainScreen = pg.transform.scale(mainScreen,(1316,740))
+cursor = pg.image.load('resources/images/app/cursor.png')
+cursorRect = cursor.get_rect()
 
 abspath = pathlib.Path("mode.pickle").absolute()
 readMode = open(str(abspath), "rb")
 mode = pickle.load(readMode)
 
-player = pl.Player()
-player_group = pg.sprite.GroupSingle()
-player_group.add(player)
+
 
 zombies_group = pg.sprite.Group()
-hostile_event = pg.USEREVENT
-pg.time.set_timer(hostile_event,600)
+zombieEvent = pg.USEREVENT
+
+zombieFreq = 100000
+zombieSpeed = 1
+zombiesShot = 0
+pg.time.set_timer(zombieEvent,zombieFreq)
+zombieEventTimer = pg.time.get_ticks()
 
 platform = pt.Platform()
 platform_group = pg.sprite.GroupSingle()
@@ -62,18 +68,39 @@ platform_group.add(platform)
 
 bullet_group = pg.sprite.Group()
 
+player = pl.Player()
+player_group = pg.sprite.GroupSingle()
+player_group.add(player)
+
+def levelUp():
+    bullet_group.empty()
+    zombies_group.empty()
+    player_group.empty()
+    player = pl.Player()
+    player_group.add(player)
+    return player
+
 def game_over():
-    gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
-    text = gameOverFont.render("Game Over",True,(255,255,255))
-    text_rect = text.get_rect(center = (653,243))
-    screen.blit(text,text_rect)
-    currScore = 0
+    cursorRect.center = pg.mouse.get_pos()
+
+    if player.hp <= 0:
+        gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
+        text = gameOverFont.render("Game Over",True,(255,255,255))
+        text_rect = text.get_rect(center = (653,243))
+        screen.blit(text,text_rect)
+        currScore = 0
+    else:
+        gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
+        text = gameOverFont.render("You Won",True,(255,255,255))
+        text_rect = text.get_rect(center = (653,243))
+        screen.blit(text,text_rect)
+        currScore = 0
 
 
 def main_game():
     
     pg.draw.rect(screen,(255,255,255),(58,35,200,10))
-    pg.draw.rect(screen,(191,33,48),(58,35,2 * player_group.sprite.hp,10))
+    pg.draw.rect(screen,(191,33,48),(58,35,player_group.sprite.hp,10))
     
 
     bullet_group.draw(screen)  
@@ -93,9 +120,9 @@ def main_game():
         player.update_action(2)
     if isMovingRight:
         player.update_action(3)
-    if isShootingLeft:
+    if isShootingLeft and not isMovingLeft and not isMovingRight:
         player.update_action(4)
-    if isShootingRight:
+    if isShootingRight and not isMovingLeft and not isMovingRight:
         player.update_action(5)
     if isDeadLeft:
         player.update_action(6)
@@ -124,7 +151,7 @@ while True:
     random_side = random.randrange(0,2)
     for event in pg.event.get():
 
-        if event.type == hostile_event:
+        if event.type == zombieEvent:
             if random_side == 0: 
                 random_xpos = range(-20,180)
                 isFlippedZombie = True
@@ -132,8 +159,16 @@ while True:
                 random_xpos = range(1136,1336)
                 isFlippedZombie = False
                 
-            random_speed = [2]
-            zombie = zm.Zombie(random.choice(random_xpos),random.choice(random_speed),isFlippedZombie)
+
+            if mode == 2:
+                if pg.time.get_ticks() - zombieEventTimer >= 60000 and zombieSpeed < 3:
+                    zombieEventTimer = pg.time.get_ticks()
+                    zombieSpeed += 0.5
+
+            else:
+                zombieSpeed = 2
+
+            zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie)
             zombies_group.add(zombie)
 
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
@@ -177,23 +212,25 @@ while True:
                 player.hp = 0
 
         if event.type == pg.KEYUP and alive:
-            if event.key == pg.K_LEFT:
+            if event.key == pg.K_LEFT and not isMovingRight and not isShootingLeft:
                 isMovingLeft = False
                 isIdleLeft = True
-            if event.key == pg.K_RIGHT:
+            if event.key == pg.K_RIGHT and not isMovingLeft and not isShootingRight:
                 isMovingRight = False
                 isIdleRight = True
             if event.key == pg.K_s:
-                if isShootingLeft:
-                    isShootingLeft = False
+                isShootingLeft = False
+                isShootingRight = False
+                if isShootingLeft and not isMovingLeft:
                     isIdleLeft = True
-                if isShootingRight:
-                    isShootingRight = False
+                if isShootingRight and not isMovingRight:
                     isIdleRight = True
 
     shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
     
     if len(shotZombieDict) != 0:
+        if mode == 1:
+            zombiesShot += 1
         
         shotZombie = list(shotZombieDict.keys())[0]
         
@@ -207,9 +244,39 @@ while True:
 
     if mode == 1:
         if player_group.sprite.hp <= 0:
-            pg.time.set_timer(hostile_event,0)
+            pg.time.set_timer(zombieEvent,0)
             player.die()
             game_over()
+
+        if level == 1 and zombiesShot == 10:
+            player = levelUp()
+            level = 2
+            zombiesShot = 0
+        if level == 2 and zombiesShot == 10:
+            player = levelUp()
+            level = 3
+            zombiesShot = 0
+        if level == 3 and zombiesShot == 10:
+            player = levelUp()
+            level = 4
+            zombiesShot = 0
+        if level == 4 and zombiesShot == 10:
+            player = levelUp()
+            level = 5
+            zombiesShot = 0
+        if level == 5 and zombiesShot == 10:
+            player = levelUp()
+            level = 6
+            zombiesShot = 0
+        # if level == 6 and boss.hp == 0:
+        #     player = levelUp()
+        #     game_over()
+
+
+
+        mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
+        mainScreen = pg.transform.scale(mainScreen,(1316,740))
+        
     else:
         fontScore = pg.font.Font('resources/fonts/font.ttf',20)
         scoreText = fontScore.render(f"Score {currScore}",True,(255,255,255))
@@ -218,12 +285,17 @@ while True:
         
         if player_group.sprite.hp > 0:
             currScore += 2
+            if pg.time.get_ticks() - zombieEventTimer >= 1000 and zombieFreq > 300:
+                zombieEventTimer = pg.time.get_ticks()
+                zombieFreq -= 5
+                pg.time.set_timer(zombieEvent, zombieFreq)
         else:
-            pg.time.set_timer(hostile_event,0)
+            pg.time.set_timer(zombieEvent,0)
             player.die()
             game_over()
     
     main_game()
-    pg.display.update()
     platform_group.draw(screen)
+    screen.blit(cursor, cursorRect)
+    pg.display.update()
     clock.tick(60)

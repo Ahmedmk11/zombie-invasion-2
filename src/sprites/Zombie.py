@@ -93,7 +93,14 @@ class Zombie(pg.sprite.Sprite):
     def checkAttackRange(self):
         if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx > InGame.player.rect.centerx):
             return True
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 50) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 70) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+            return True
+        return False
+
+    def checkDamageRange(self):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35):
+            return True
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 65):
             return True
         return False
 
@@ -101,7 +108,7 @@ class Zombie(pg.sprite.Sprite):
         if self.attacking:
             animation_cooldown = 125
         elif self.appearing:
-            animation_cooldown = 90
+            animation_cooldown = 100
         elif self.isDying:
             animation_cooldown = 60
         else:
@@ -126,8 +133,8 @@ class Zombie(pg.sprite.Sprite):
 
             if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
                 InGame.player.getDamage(10)
-            if pg.sprite.spritecollide(InGame.player_group.sprite,InGame.zombies_group,False):
-                InGame.player_group.sprite.getDamage(0.1)
+            if pg.sprite.spritecollide(InGame.player_group.sprite,InGame.zombies_group,False) and self.checkDamageRange():
+                InGame.player_group.sprite.getDamage(0.5)
 
         if self.frameIndex >= len(self.anime[self.action]):
             self.frameIndex = 0
