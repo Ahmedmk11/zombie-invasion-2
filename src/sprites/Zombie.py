@@ -27,14 +27,6 @@ def makeAnimationFlip(directory):
     
     return tempList
 
-def enlarge(animationList):
-    tempList = []
-    for img in animationList:
-        width = img.get_size()[0]
-        height = img.get_size()[1]
-        tempList.append(pg.transform.scale(img, (int(width*1.6), int(height*1.6))))
-    return tempList
-
 class Zombie(pg.sprite.Sprite):
     def __init__(self,xpos,speed,isFlipped, isBoss):
         super().__init__()
@@ -79,16 +71,16 @@ class Zombie(pg.sprite.Sprite):
             self.anime.append(self.dieRight)
         else:
             self.hp = 1000
-            self.walkLeft = enlarge(makeAnimation('resources/images/sprites/zombies/walk/'))
-            self.walkRight = enlarge(makeAnimationFlip('resources/images/sprites/zombies/walk/'))
-            self.idleLeft = enlarge(makeAnimation('resources/images/sprites/zombies/idle/'))
-            self.idleRight = enlarge(makeAnimationFlip('resources/images/sprites/zombies/idle/'))
-            self.attackLeft = enlarge(makeAnimation('resources/images/sprites/zombies/attack/'))
-            self.attackRight = enlarge(makeAnimationFlip('resources/images/sprites/zombies/attack/'))
-            self.appearLeft = enlarge(makeAnimation('resources/images/sprites/zombies/appear/'))
-            self.appearRight = enlarge(makeAnimationFlip('resources/images/sprites/zombies/appear/'))
-            self.dieLeft = enlarge(makeAnimation('resources/images/sprites/zombies/die/'))
-            self.dieRight = enlarge(makeAnimationFlip('resources/images/sprites/zombies/die/'))
+            self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
+            self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
+            self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
+            self.idleRight = makeAnimationFlip('resources/images/sprites/boss/idle/')
+            self.attackLeft = makeAnimation('resources/images/sprites/boss/attack/')
+            self.attackRight = makeAnimationFlip('resources/images/sprites/boss/attack/')
+            self.appearLeft = makeAnimation('resources/images/sprites/boss/appear/')
+            self.appearRight = makeAnimationFlip('resources/images/sprites/boss/appear/')
+            self.dieLeft = makeAnimation('resources/images/sprites/boss/die/')
+            self.dieRight = makeAnimationFlip('resources/images/sprites/boss/die/')
             self.anime = []
             self.anime.append(self.idleLeft)
             self.anime.append(self.idleRight)
@@ -103,7 +95,11 @@ class Zombie(pg.sprite.Sprite):
         
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (xpos,555)
+        if not isBoss:
+            self.rect.midbottom = (xpos,555)
+        else:
+            self.rect.midbottom = (xpos,540)
+
         
     def move(self):
 
