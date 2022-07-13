@@ -107,7 +107,7 @@ class Player(pg.sprite.Sprite):
         if hits:
             # jump_sound = mixer.Sound('Jump.wav')
             # jump_sound.play()
-            self.vel_vec.y = -15
+            self.vel_vec.y = -17
 
     def shoot(self,angle):
         bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 12, self.direction, angle)
@@ -120,10 +120,12 @@ class Player(pg.sprite.Sprite):
 
     def die(self):
         InGame.alive = False
-        if not InGame.zombie.isFlipped:
-            InGame.isIdleLeftZombie = True
-        else:
-            InGame.isIdleRightZombie = True
+        zombieExists = 'zombie' in locals() or 'zombie' in globals()
+        if zombieExists:
+            if not InGame.zombie.isFlipped:
+                InGame.isIdleLeftZombie = True
+            else:
+                InGame.isIdleRightZombie = True
         if not self.isFlipped:
             InGame.isMovingLeft = False
             InGame.isMovingRight = False

@@ -1,15 +1,19 @@
 from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
+from sprites import Dragon as dr
 from pygame import mixer
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
 WIDTH = 1316
 HEIGHT = 740
+
 currScore = 0
-level = 1
+level = 3
 lives = 3
+zombiesWave = True
+dragonsWave = False
 
 alive = True
 isIdleLeft = True
@@ -37,6 +41,13 @@ isAppearingRightZombie = False
 isDeadLeftZombie = False
 isDeadRightZombie = False
 
+isFlyingLeft = False
+isFlyingRight = False
+isDyingLeft = False
+isDyingRight = False
+
+
+
 screen = pg.display.set_mode((WIDTH,HEIGHT))
 heart = pg.transform.flip(pg.image.load('resources/images/sprites/heroine/heart.png'),True,False)
 heart_rect = heart.get_rect(center = (5,0))
@@ -54,16 +65,26 @@ abspath = pathlib.Path("mode.pickle").absolute()
 readMode = open(str(abspath), "rb")
 mode = pickle.load(readMode)
 
-
-
 zombies_group = pg.sprite.Group()
 zombieEvent = pg.USEREVENT
 
-zombieFreq = 100000
-zombieSpeed = 1
+dragon_group = pg.sprite.Group()
+dragonEvent = pg.USEREVENT
+
+if mode == 1:
+    zombieFreq = 600
+    dragonFreq = 600
+    zombieSpeed = 2
+elif mode == 2:
+    zombieFreq = 800
+    dragonFreq = 600
+    zombieSpeed = 1
+
 zombiesShot = 0
-pg.time.set_timer(zombieEvent,zombieFreq)
 zombieEventTimer = pg.time.get_ticks()
+
+dragonsShot = 0
+dragonEventTimer = pg.time.get_ticks()
 
 platform = pt.Platform()
 platform_group = pg.sprite.GroupSingle()
@@ -78,6 +99,7 @@ player_group.add(player)
 def levelUp():
     bullet_group.empty()
     zombies_group.empty()
+    dragon_group.empty()
     player_group.empty()
     player = pl.Player()
     player_group.add(player)
@@ -105,14 +127,15 @@ def main_game():
     pg.draw.rect(screen,(255,255,255),(58,35,200,10))
     pg.draw.rect(screen,(191,33,48),(58,35,player_group.sprite.hp,10))
     
-
     bullet_group.draw(screen)  
     player.draw() 
     zombies_group.draw(screen)
+    dragon_group.draw(screen)
     platform_group.draw(screen)
 
     bullet_group.update()
     zombies_group.update()
+    dragon_group.update()
     player_group.update()
 
     if isIdleLeft:
@@ -141,8 +164,6 @@ def main_game():
             player.shoot(False)
             player.shootingCoolDown = 25
 
-            
-
     if isShootingLeftUp or isShootingRightUp:
         if player.shootingCoolDownUp == 0:
             # Fireball_sound = mixer.Sound('Fireball.wav')
@@ -159,30 +180,11 @@ while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
     screen.blit(heart,(0,2))
-
     random_side = random.randrange(0,2)
+    random_side2 = random.randrange(0,2)
+    
     for event in pg.event.get():
-
-        if event.type == zombieEvent:
-            if random_side == 0: 
-                random_xpos = range(-20,180)
-                isFlippedZombie = True
-            else:
-                random_xpos = range(1136,1336)
-                isFlippedZombie = False
-                
-
-            if mode == 2:
-                if pg.time.get_ticks() - zombieEventTimer >= 60000 and zombieSpeed < 3:
-                    zombieEventTimer = pg.time.get_ticks()
-                    zombieSpeed += 0.5
-
-            else:
-                zombieSpeed = 2
-
-            zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie)
-            zombies_group.add(zombie)
-
+        
         if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
             pg.quit()
             sys.exit()
@@ -295,9 +297,26 @@ while True:
 
         shotZombie.hp = 0
 
+    shotDragonDict = pg.sprite.groupcollide(dragon_group, bullet_group, False, True)
+    
+    if len(shotDragonDict) != 0:
+        if mode == 1:
+            dragonsShot += 1
+        
+        shotDragon = list(shotDragonDict.keys())[0]
+        
+        if shotDragon.isDying: # check this line
+            if not shotDragon.isFlipped:
+                shotDragon.update_action(2)
+            elif shotDragon.isFlipped:
+                shotDragon.update_action(3)
+
+        shotDragon.hp = 0
+
     if mode == 1:
         if player_group.sprite.hp <= 0:
-            pg.time.set_timer(zombieEvent,0)
+            zombiesWave = False
+            dragonsWave = False
             player.die()
             game_over()
 
@@ -312,25 +331,42 @@ while True:
         if level == 3 and zombiesShot == 10:
             player = levelUp()
             level = 4
+            dragonsWave = True
             zombiesShot = 0
         if level == 4 and zombiesShot == 10:
             player = levelUp()
             level = 5
+            dragonsWave = True
             zombiesShot = 0
         if level == 5 and zombiesShot == 10:
             player = levelUp()
             level = 6
+            dragonsWave = True
             zombiesShot = 0
         # if level == 6 and boss.hp == 0:
-        #     player = levelUp()
         #     game_over()
+
+        if level == 2:
+            zombieFreq = 500
+        if level == 3:
+            zombieFreq = 400
+        if level == 4:
+            zombieFreq = 400
+            dragonFreq = 3000
+        if level == 5:
+            zombieFreq = 300
+            dragonFreq = 2000
+        if level == 6:
+            zombieFreq = 5000
+            dragonFreq = 10000
+
 
 
 
         mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
         mainScreen = pg.transform.scale(mainScreen,(1316,740))
         
-    else:
+    elif mode == 2:
         fontScore = pg.font.Font('resources/fonts/font.ttf',20)
         scoreText = fontScore.render(f"Score {currScore}",True,(255,255,255))
         scoreTextRect = scoreText.get_rect(center = (1200,40))
@@ -341,15 +377,55 @@ while True:
             if pg.time.get_ticks() - zombieEventTimer >= 1000 and zombieFreq > 300:
                 zombieEventTimer = pg.time.get_ticks()
                 zombieFreq -= 5
-                pg.time.set_timer(zombieEvent, zombieFreq)
         else:
-            pg.time.set_timer(zombieEvent,0)
+            zombiesWave = False
+            dragonsWave = False
             player.die()
             game_over()
     
+
+
+    if pg.time.get_ticks() - zombieEventTimer >= zombieFreq and zombiesWave:
+
+        zombieEventTimer = pg.time.get_ticks()
+        if random_side == 0: 
+                random_xpos = range(-20,180)
+                isFlippedZombie = True
+        else:
+            random_xpos = range(1136,1336)
+            isFlippedZombie = False
+
+        if mode == 2:
+            if pg.time.get_ticks() - zombieEventTimer >= 60000 and zombieSpeed < 3:
+                zombieEventTimer = pg.time.get_ticks()
+                zombieSpeed += 0.5
+
+        zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie)
+        zombies_group.add(zombie)
+
+    if pg.time.get_ticks() - dragonEventTimer >= dragonFreq and dragonsWave:
+        dragonEventTimer = pg.time.get_ticks()
+        if random_side2 == 0: 
+            random_xpos2 = range(-100,-90)
+            isFlippedDragon = True
+        else:
+            random_xpos2 = range(1406,1416)
+            isFlippedDragon = False
+
+        random_ypos = range(100,200)
+
+        if level == 4:
+            dragon = dr.Dragon(random.choice(random_xpos2),random.choice(random_ypos),isFlippedDragon, "yellow")
+        elif level == 5 or level == 6:
+            dragon = dr.Dragon(random.choice(random_xpos2),random.choice(random_ypos),isFlippedDragon, "red")
+
+        dragon_group.add(dragon)
+
+    print(zombieFreq)
     main_game()
     platform_group.draw(screen)
-    if not alive: #boss
+    x, y = pg.mouse.get_pos()
+    if not alive and x > 0 and x < 1315 and y > 0 and y < 739: #boss   
         screen.blit(cursor, cursorRect)
     pg.display.update()
     clock.tick(60)

@@ -109,7 +109,7 @@ class Zombie(pg.sprite.Sprite):
             animation_cooldown = 125
         elif self.appearing:
             animation_cooldown = 100
-        elif self.isDying:
+        elif self.hp == 0:
             animation_cooldown = 60
         else:
             animation_cooldown = 90
@@ -154,7 +154,7 @@ class Zombie(pg.sprite.Sprite):
         if self.attackCoolDown > 0:
             self.attackCoolDown -= 1
 
-        if self.rect.centerx >= 1320 or self.rect.centerx <= -10:
+        if self.rect.centerx >= 1336 or self.rect.centerx <= -20:
             self.kill()
 
         if not self.isFlipped and not InGame.alive:
