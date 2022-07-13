@@ -29,4 +29,5 @@ class Bullet(pg.sprite.Sprite):
             self.rect.y -= self.speed-10
         if self.rect.left >= 1321 or self.rect.right <= -5:  
             self.kill()
+
         InGame.screen.blit(self.image,self.rect)

@@ -168,7 +168,7 @@ class Player(pg.sprite.Sprite):
             self.shootingCoolDown -= 1
         if self.shootingCoolDownUp > 0:
             self.shootingCoolDownUp -= 1
-        
+
         InGame.screen.blit(self.image,self.rect)
 
     def update_action(self,new_action):

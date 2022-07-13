@@ -190,7 +190,6 @@ while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
     screen.blit(heart,(0,2))
-    random_side = random.randrange(0,2)
     random_side2 = random.randrange(0,2)
     
     for event in pg.event.get():
@@ -396,19 +395,14 @@ while True:
     if pg.time.get_ticks() - zombieEventTimer >= zombieFreq and zombiesWave:
 
         zombieEventTimer = pg.time.get_ticks()
-        if random_side == 0: 
-                random_xpos = range(-20,180)
-                isFlippedZombie = True
-        else:
-            random_xpos = range(1136,1336)
-            isFlippedZombie = False
+        
 
         if mode == 2:
             if pg.time.get_ticks() - zombieEventTimer >= 60000 and zombieSpeed < 3:
                 zombieEventTimer = pg.time.get_ticks()
                 zombieSpeed += 0.5
 
-        zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie, False)
+        zombie = zm.Zombie(zombieSpeed, False)
         zombies_group.add(zombie)
 
     if pg.time.get_ticks() - dragonEventTimer >= dragonFreq and dragonsWave:

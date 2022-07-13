@@ -1,3 +1,4 @@
+import random
 import pygame as pg
 from PIL import Image
 import os, InGame
@@ -28,77 +29,57 @@ def makeAnimationFlip(directory):
     return tempList
 
 class Zombie(pg.sprite.Sprite):
-    def __init__(self,xpos,speed,isFlipped, isBoss):
+    def __init__(self,speed, isBoss):
         super().__init__()
         self.speed = speed
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
         self.attackCoolDown = 0
-        self.isFlipped = isFlipped
         self.appearing = True
         self.walking = False
         self.attacking = False
         self.isDying = True
         self.isBoss = isBoss
+        random_side = random.randrange(0,2)
+
+        if random_side == 0: 
+            random_xpos = range(-20,180)
+            self.isFlipped = True
+        else:
+            random_xpos = range(1136,1336)
+            self.isFlipped = False
 
         if not self.isFlipped:
             self.action = 6
         elif self.isFlipped:
             self.action = 7
 
-        if not self.isBoss:
-            self.hp = 10
-            self.walkLeft = makeAnimation('resources/images/sprites/zombies/walk/')
-            self.walkRight = makeAnimationFlip('resources/images/sprites/zombies/walk/')
-            self.idleLeft = makeAnimation('resources/images/sprites/zombies/idle/')
-            self.idleRight = makeAnimationFlip('resources/images/sprites/zombies/idle/')
-            self.attackLeft = makeAnimation('resources/images/sprites/zombies/attack/')
-            self.attackRight = makeAnimationFlip('resources/images/sprites/zombies/attack/')
-            self.appearLeft = makeAnimation('resources/images/sprites/zombies/appear/')
-            self.appearRight = makeAnimationFlip('resources/images/sprites/zombies/appear/')
-            self.dieLeft = makeAnimation('resources/images/sprites/zombies/die/')
-            self.dieRight = makeAnimationFlip('resources/images/sprites/zombies/die/')
-            self.anime = []
-            self.anime.append(self.idleLeft)
-            self.anime.append(self.idleRight)
-            self.anime.append(self.walkLeft)
-            self.anime.append(self.walkRight)
-            self.anime.append(self.attackLeft)
-            self.anime.append(self.attackRight)
-            self.anime.append(self.appearLeft)
-            self.anime.append(self.appearRight)
-            self.anime.append(self.dieLeft)
-            self.anime.append(self.dieRight)
-        else:
-            self.hp = 2000
-            self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
-            self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
-            self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
-            self.idleRight = makeAnimationFlip('resources/images/sprites/boss/idle/')
-            self.attackLeft = makeAnimation('resources/images/sprites/boss/attack/')
-            self.attackRight = makeAnimationFlip('resources/images/sprites/boss/attack/')
-            self.appearLeft = makeAnimation('resources/images/sprites/boss/appear/')
-            self.appearRight = makeAnimationFlip('resources/images/sprites/boss/appear/')
-            self.dieLeft = makeAnimation('resources/images/sprites/boss/die/')
-            self.dieRight = makeAnimationFlip('resources/images/sprites/boss/die/')
-            self.anime = []
-            self.anime.append(self.idleLeft)
-            self.anime.append(self.idleRight)
-            self.anime.append(self.walkLeft)
-            self.anime.append(self.walkRight)
-            self.anime.append(self.attackLeft)
-            self.anime.append(self.attackRight)
-            self.anime.append(self.appearLeft)
-            self.anime.append(self.appearRight)
-            self.anime.append(self.dieLeft)
-            self.anime.append(self.dieRight)
+        self.hp = 10
+        self.walkLeft = makeAnimation('resources/images/sprites/zombies/walk/')
+        self.walkRight = makeAnimationFlip('resources/images/sprites/zombies/walk/')
+        self.idleLeft = makeAnimation('resources/images/sprites/zombies/idle/')
+        self.idleRight = makeAnimationFlip('resources/images/sprites/zombies/idle/')
+        self.attackLeft = makeAnimation('resources/images/sprites/zombies/attack/')
+        self.attackRight = makeAnimationFlip('resources/images/sprites/zombies/attack/')
+        self.appearLeft = makeAnimation('resources/images/sprites/zombies/appear/')
+        self.appearRight = makeAnimationFlip('resources/images/sprites/zombies/appear/')
+        self.dieLeft = makeAnimation('resources/images/sprites/zombies/die/')
+        self.dieRight = makeAnimationFlip('resources/images/sprites/zombies/die/')
+        self.anime = []
+        self.anime.append(self.idleLeft)
+        self.anime.append(self.idleRight)
+        self.anime.append(self.walkLeft)
+        self.anime.append(self.walkRight)
+        self.anime.append(self.attackLeft)
+        self.anime.append(self.attackRight)
+        self.anime.append(self.appearLeft)
+        self.anime.append(self.appearRight)
+        self.anime.append(self.dieLeft)
+        self.anime.append(self.dieRight)
         
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        if not isBoss:
-            self.rect.midbottom = (xpos,555)
-        else:
-            self.rect.midbottom = (xpos,550)
+        self.rect.midbottom = (random.choice(random_xpos),555)
 
         
     def move(self):
@@ -187,16 +168,26 @@ class Zombie(pg.sprite.Sprite):
         if self.attackCoolDown > 0:
             self.attackCoolDown -= 1
 
-        if self.rect.centerx >= 1336 or self.rect.centerx <= -20:
+        if not self.isBoss and self.rect.centerx >= 1336 or self.rect.centerx <= -20:
             self.kill()
+        
+        if self.isBoss:
+            if not self.isFlipped: # looking left
+                if InGame.player.rect.left >= self.rect.centerx: 
+                    self.isFlipped = True
+            else:
+                if InGame.player.rect.right < self.rect.centerx:
+                    self.isFlipped = False
 
+            
         if not self.isFlipped and not InGame.alive:
             self.update_action(0)
         if self.isFlipped and not InGame.alive:
             self.update_action(1)
 
         if self.isBoss:
-            pass
+            if pg.sprite.spritecollide(InGame.boss_group.sprite, InGame.bullet_group, True):
+                InGame.boss.getDamage()
 
     def update_action(self,new_action):
         if new_action != self.action:
