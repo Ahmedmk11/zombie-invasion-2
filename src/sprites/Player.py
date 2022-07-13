@@ -1,3 +1,4 @@
+from pickle import TRUE
 from sprites import Bullet as bt
 from pygame import Vector2 as vec
 import pygame as pg, os, InGame
@@ -38,14 +39,16 @@ class Player(pg.sprite.Sprite):
         super().__init__()
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
-        InGame.isIdleRight = False
+        if InGame.level == 6:
+            InGame.isIdleLeft = False
+        if InGame.level != 6:
+            InGame.isIdleRight = False
         InGame.isShootingLeft = False
         InGame.isShootingRight = False
         InGame.isMovingLeft = False
         InGame.isMovingRight = False
         InGame.isShootingRightUp = False
         InGame.isShootingLeftUp = False
-        self.action = 0
         self.hp = 200
         self.vel_vec = vec(0,0)
         self.acc_vec = vec(0,0)
@@ -53,11 +56,21 @@ class Player(pg.sprite.Sprite):
         self.isDead = False
         self.isJumping = False
         self.isIdle = True
-        self.isFlipped = False
+
+        if InGame.level == 6:
+            self.action = 1
+            self.isFlipped = True
+            self.pos = vec(200,540)
+            self.direction = -1
+        else:
+            self.action = 0
+            self.isFlipped = False
+            self.pos = vec(WIDTH/2,540)
+            self.direction = 1
+
         self.shootingCoolDown = 0
         self.shootingCoolDownUp = 0
-
-        self.direction = 1
+        self.currScore = 0
 
         self.walkLeft = makeAnimation('resources/images/sprites/heroine/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/heroine/walk/')
@@ -76,7 +89,6 @@ class Player(pg.sprite.Sprite):
         self.anime.append(self.shootRight)
         self.anime.append(self.dieLeft)
         self.anime.append(self.dieRight)
-        self.pos = vec(WIDTH/2,540)
 
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()

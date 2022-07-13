@@ -29,5 +29,7 @@ class Bullet(pg.sprite.Sprite):
             self.rect.y -= self.speed-10
         if self.rect.left >= 1321 or self.rect.right <= -5:  
             self.kill()
-
+        if InGame.level == 6 and InGame.boss.hp > 0 and ((self.direction == 1 and (self.rect.left - InGame.boss.rect.centerx) < 45) or (self.direction == -1 and (InGame.boss.rect.centerx - self.rect.right) < 45)):
+            self.kill()
+            InGame.boss.getDamage()
         InGame.screen.blit(self.image,self.rect)

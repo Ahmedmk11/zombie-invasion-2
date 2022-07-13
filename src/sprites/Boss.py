@@ -31,7 +31,7 @@ class Boss(zm.Zombie): # inherited: move, update_action, attack
     def __init__(self):
         zm.Zombie.__init__(self,3,True)
         self.isFlipped = False
-        self.hp = 2000
+        self.hp = 200
         self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
         self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
@@ -54,14 +54,16 @@ class Boss(zm.Zombie): # inherited: move, update_action, attack
         self.anime.append(self.dieLeft)
         self.anime.append(self.dieRight)
 
+        self.action = 6
+
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (1250,550)
+        self.rect.midbottom = (1250,555)
 
     def checkAttackRange(self):
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx > InGame.player.rect.centerx):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx >= InGame.player.rect.centerx):
             return True
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 70) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 300) and (self.isFlipped and self.rect.centerx <= InGame.player.rect.centerx):
             return True
         return False
 

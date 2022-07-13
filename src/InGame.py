@@ -10,11 +10,11 @@ pg.init()
 WIDTH = 1316
 HEIGHT = 740
 
-currScore = 0
-level = 3
+level = 5
 lives = 3
 zombiesWave = True
 dragonsWave = False
+isGameOver = False
 
 alive = True
 isIdleLeft = True
@@ -50,8 +50,14 @@ isDyingRight = False
 
 
 screen = pg.display.set_mode((WIDTH,HEIGHT))
+
 heart = pg.transform.flip(pg.image.load('resources/images/sprites/heroine/heart.png'),True,False)
 heart_rect = heart.get_rect(center = (5,0))
+
+bossHead = pg.image.load('resources/images/sprites/boss/head.png')
+bossHead_rect = bossHead.get_rect(left = 900)
+
+
 appIcon = pg.image.load('resources/images/app/icon.png')
 pg.display.set_icon(appIcon)
 pg.display.set_caption("Zombie Invasion: Apocalypse")
@@ -107,31 +113,36 @@ def levelUp():
     dragon_group.empty()
     player_group.empty()
     player = pl.Player()
-    print(player.action)
     player_group.add(player)
     return player
 
 def game_over():
+    bullet_group.empty()
+    fireball_group.empty()
     cursorRect.center = pg.mouse.get_pos()
+    gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
 
     if player.hp <= 0:
-        gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
         text = gameOverFont.render("Game Over",True,(255,255,255))
-        text_rect = text.get_rect(center = (653,243))
-        screen.blit(text,text_rect)
-        currScore = 0
     else:
         gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
         text = gameOverFont.render("You Won",True,(255,255,255))
-        text_rect = text.get_rect(center = (653,243))
-        screen.blit(text,text_rect)
-        currScore = 0
+    
+    text_rect = text.get_rect(center = (653,243))
+    isGameOver = True
 
+    return text, text_rect, isGameOver
 
 def main_game():
     
     pg.draw.rect(screen,(255,255,255),(58,35,200,10))
     pg.draw.rect(screen,(191,33,48),(58,35,player_group.sprite.hp,10))
+    screen.blit(heart,(0,2))
+
+    if level == 6 and boss.hp > 0:
+        pg.draw.rect(screen,(255,255,255),(408,35,500,20))
+        pg.draw.rect(screen, (34,139,34),(408,35,boss_group.sprite.hp/4,20))
+        screen.blit(bossHead, bossHead_rect)
     
     bullet_group.draw(screen)
     fireball_group.draw(screen)
@@ -186,10 +197,15 @@ def main_game():
     if player.pos.x < 0:
         player.pos.x = WIDTH
 
+    if level == 6:
+        if boss.rect.left > WIDTH:
+            boss.rect.right = 0
+        if boss.rect.right < 0:
+            boss.rect.left = WIDTH
+
 while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
-    screen.blit(heart,(0,2))
     random_side2 = random.randrange(0,2)
     
     for event in pg.event.get():
@@ -287,24 +303,24 @@ while True:
                 if isShootingRightUp and not isMovingRight:
                     isShootingRightUp = False
                     isIdleRight = True
-            
+
 
 
     shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
     
     if len(shotZombieDict) != 0:
-        if mode == 1:
-            zombiesShot += 1
         
         shotZombie = list(shotZombieDict.keys())[0]
-        
-        if shotZombie.isDying:
-            if not shotZombie.isFlipped:
-                shotZombie.update_action(8)
-            elif shotZombie.isFlipped:
-                shotZombie.update_action(9)
+        if not shotZombie.isBoss:
+            if mode == 1:
+                zombiesShot += 1
+            if shotZombie.isDying:
+                if not shotZombie.isFlipped:
+                    shotZombie.update_action(8)
+                elif shotZombie.isFlipped:
+                    shotZombie.update_action(9)
 
-        shotZombie.hp = 0
+            shotZombie.hp = 0
 
     shotDragonDict = pg.sprite.groupcollide(dragon_group, bullet_group, False, True)
     
@@ -327,34 +343,35 @@ while True:
             zombiesWave = False
             dragonsWave = False
             player.die()
-            game_over()
-
-        if level == 1 and zombiesShot == 1:
-            player = levelUp()
-            level = 2
-            zombiesShot = 0
-        if level == 2 and zombiesShot == 1:
-            player = levelUp()
-            level = 3
-            zombiesShot = 0
-        if level == 3 and zombiesShot == 1:
-            player = levelUp()
-            level = 4
-            dragonsWave = True
-            zombiesShot = 0
-        if level == 4 and zombiesShot == 1:
-            player = levelUp()
-            level = 5
-            zombiesShot = 0
-        if level == 5 and zombiesShot == 1:
-            player = levelUp()
-            level = 6
-            zombiesShot = 0
-            zombiesWave = False #
-            boss = Boss.Boss()
-            boss_group.add(boss)
-        if level == 6 and boss.hp == 0:
-            game_over()
+            text, text_rect, isGameOver = game_over()
+        
+        else:
+            if level == 1 and zombiesShot == 1:
+                level = 2
+                player = levelUp()
+                zombiesShot = 0
+            if level == 2 and zombiesShot == 1:
+                level = 3
+                player = levelUp()
+                zombiesShot = 0
+            if level == 3 and zombiesShot == 1:
+                level = 4
+                player = levelUp()
+                dragonsWave = True
+                zombiesShot = 0
+            if level == 4 and zombiesShot == 1:
+                level = 5
+                player = levelUp()
+                zombiesShot = 0
+            if level == 5 and zombiesShot == 1:
+                level = 6
+                player = levelUp()
+                zombiesShot = 0
+                zombiesWave = False #
+                boss = Boss.Boss()
+                boss_group.add(boss)
+            if level == 6 and boss.hp <= 0:
+                text, text_rect, isGameOver = game_over()
 
         if level == 2:
             zombieFreq = 600
@@ -368,19 +385,25 @@ while True:
             dragonFreq = 2000
         if level == 6:
             zombieFreq = 8000
-            dragonFreq = 3000 #11000
+            dragonFreq = 11000
+                
+            if boss.hp <= 0 and boss.isDying:
+                if not boss.isFlipped:
+                    boss.update_action(8)
+                elif boss.isFlipped:
+                    boss.update_action(9)
 
         mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
         mainScreen = pg.transform.scale(mainScreen,(1316,740))
         
     elif mode == 2:
         fontScore = pg.font.Font('resources/fonts/font.ttf',20)
-        scoreText = fontScore.render(f"Score {currScore}",True,(255,255,255))
+        scoreText = fontScore.render(f"Score {player.currScore}",True,(255,255,255))
         scoreTextRect = scoreText.get_rect(center = (1200,40))
         screen.blit(scoreText,scoreTextRect)
         
         if player_group.sprite.hp > 0:
-            currScore += 2
+            player.currScore += 2
             if pg.time.get_ticks() - zombieEventTimer >= 1000 and zombieFreq > 300:
                 zombieEventTimer = pg.time.get_ticks()
                 zombieFreq -= 5
@@ -388,7 +411,7 @@ while True:
             zombiesWave = False
             dragonsWave = False
             player.die()
-            game_over()
+            text, text_rect, isGameOver = game_over()
     
 
 
@@ -428,5 +451,8 @@ while True:
     x, y = pg.mouse.get_pos()
     if not alive and x > 0 and x < 1315 and y > 0 and y < 739: #boss   
         screen.blit(cursor, cursorRect)
+
+    if isGameOver:
+        screen.blit(text,text_rect)
     pg.display.update()
     clock.tick(60)

@@ -1,4 +1,6 @@
+from curses.ascii import isblank
 import random
+from turtle import width
 import pygame as pg
 from PIL import Image
 import os, InGame
@@ -84,7 +86,7 @@ class Zombie(pg.sprite.Sprite):
         
     def move(self):
 
-        if self.walking and not self.hp == 0:
+        if self.walking and not self.hp <= 0:
             if not self.isFlipped:
                 self.update_action(2)
             elif self.isFlipped:
@@ -96,16 +98,16 @@ class Zombie(pg.sprite.Sprite):
             self.rect.centerx += self.speed
 
     def attack(self):
-        if self.attacking and not self.hp == 0:
+        if self.attacking and not self.hp <= 0:
             if not self.isFlipped:
                 self.update_action(4)
             if self.isFlipped:
                 self.update_action(5)
 
     def checkAttackRange(self):
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx > InGame.player.rect.centerx):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx >= InGame.player.rect.centerx):
             return True
-        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 70) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 70) and (self.isFlipped and self.rect.centerx <= InGame.player.rect.centerx):
             return True
         return False
 
@@ -122,9 +124,11 @@ class Zombie(pg.sprite.Sprite):
         elif self.appearing and not self.isBoss:
             animation_cooldown = 100
         elif self.appearing and self.isBoss:
-            animation_cooldown = 120
-        elif self.hp == 0:
+            animation_cooldown = 105
+        elif self.hp <= 0 and not self.isBoss:
             animation_cooldown = 60
+        elif self.hp <= 0 and self.isBoss:
+            animation_cooldown = 100
         else:
             animation_cooldown = 90
 
@@ -139,7 +143,7 @@ class Zombie(pg.sprite.Sprite):
             else:
                 self.frameIndex += 1
 
-            if self.frameIndex == len(self.anime[self.action]) - 1 and self.hp == 0 and self.isDying:
+            if self.frameIndex == len(self.anime[self.action]) - 1 and self.hp <= 0 and self.isDying:
                 self.isDying = False
                 self.kill()
             else:
@@ -155,6 +159,7 @@ class Zombie(pg.sprite.Sprite):
 
         if InGame.alive and not self.attacking:
             self.move()
+
         if not self.appearing:
             if self.checkAttackRange():
                 self.attacking = True
@@ -168,26 +173,45 @@ class Zombie(pg.sprite.Sprite):
         if self.attackCoolDown > 0:
             self.attackCoolDown -= 1
 
-        if not self.isBoss and self.rect.centerx >= 1336 or self.rect.centerx <= -20:
+        if not self.isBoss and (self.rect.centerx >= 1336 or self.rect.centerx <= -20):
             self.kill()
         
         if self.isBoss:
-            if not self.isFlipped: # looking left
-                if InGame.player.rect.left >= self.rect.centerx: 
+            if not self.isFlipped:
+                if InGame.player.rect.left >= self.rect.centerx and self.rect.centerx > InGame.WIDTH/2:
                     self.isFlipped = True
-            else:
-                if InGame.player.rect.right < self.rect.centerx:
+                elif InGame.player.rect.left >= self.rect.centerx and self.rect.centerx < InGame.WIDTH/2:
                     self.isFlipped = False
+            else:
+                if InGame.player.rect.right < self.rect.centerx and self.rect.centerx <= InGame.WIDTH/2:
+                    self.isFlipped = False
+                elif InGame.player.rect.left < self.rect.centerx and self.rect.centerx > InGame.WIDTH/2:
+                    self.isFlipped = True
 
-            
-        if not self.isFlipped and not InGame.alive:
-            self.update_action(0)
-        if self.isFlipped and not InGame.alive:
-            self.update_action(1)
+            if self.hp <= 0:
+                InGame.alive = False
+                if not self.isFlipped:
+                    InGame.isMovingLeft = False
+                    InGame.isMovingRight = False
+                    InGame.isIdleLeft = True
+                    InGame.isIdleRight = False
+                    InGame.isShootingLeft = False
+                    InGame.isShootingRight = False
+                    InGame.isDeadLeft = False
+                if self.isFlipped:
+                    InGame.isMovingLeft = False
+                    InGame.isMovingRight = False
+                    InGame.isIdleLeft = False
+                    InGame.isIdleRight = True
+                    InGame.isShootingLeft = False
+                    InGame.isShootingRight = False
+                    InGame.isDeadRight = False
 
-        if self.isBoss:
-            if pg.sprite.spritecollide(InGame.boss_group.sprite, InGame.bullet_group, True):
-                InGame.boss.getDamage()
+        if not self.isBoss or (self.isBoss and self.hp > 0):
+            if not self.isFlipped and not InGame.alive:
+                self.update_action(0)
+            if self.isFlipped and not InGame.alive:
+                self.update_action(1)
 
     def update_action(self,new_action):
         if new_action != self.action:
