@@ -2,6 +2,7 @@ from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
 from sprites import Dragon as dr
+from sprites import Boss 
 from pygame import mixer
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
@@ -71,6 +72,8 @@ zombieEvent = pg.USEREVENT
 dragon_group = pg.sprite.Group()
 dragonEvent = pg.USEREVENT
 
+boss_group = pg.sprite.GroupSingle()
+
 if mode == 1:
     zombieFreq = 600
     dragonFreq = 600
@@ -131,15 +134,17 @@ def main_game():
     
     bullet_group.draw(screen)
     fireball_group.draw(screen)
-    player.draw() 
     zombies_group.draw(screen)
     dragon_group.draw(screen)
+    boss_group.draw(screen)
+    player.draw()
     platform_group.draw(screen)
 
     bullet_group.update()
     fireball_group.update()
     zombies_group.update()
     dragon_group.update()
+    boss_group.update()
     player_group.update()
 
     if isIdleLeft:
@@ -324,32 +329,31 @@ while True:
             player.die()
             game_over()
 
-        if level == 1 and zombiesShot == 10:
+        if level == 1 and zombiesShot == 1:
             player = levelUp()
             level = 2
             zombiesShot = 0
-        if level == 2 and zombiesShot == 10:
+        if level == 2 and zombiesShot == 1:
             player = levelUp()
             level = 3
             zombiesShot = 0
-        if level == 3 and zombiesShot == 10:
+        if level == 3 and zombiesShot == 1:
             player = levelUp()
             level = 4
-            zombiesWave = False
             dragonsWave = True
             zombiesShot = 0
-        if level == 4 and zombiesShot == 10:
+        if level == 4 and zombiesShot == 1:
             player = levelUp()
             level = 5
-            dragonsWave = True
             zombiesShot = 0
-        if level == 5 and zombiesShot == 10:
+        if level == 5 and zombiesShot == 1:
             player = levelUp()
             level = 6
-            dragonsWave = True
             zombiesShot = 0
-        # if level == 6 and boss.hp == 0:
-        #     game_over()
+            boss = Boss.Boss()
+            boss_group.add(boss)
+        if level == 6 and boss.hp == 0:
+            game_over()
 
         if level == 2:
             zombieFreq = 600
@@ -362,11 +366,8 @@ while True:
             zombieFreq = 400
             dragonFreq = 2000
         if level == 6:
-            zombieFreq = 5000
-            dragonFreq = 10000
-
-
-
+            zombieFreq = 8000
+            dragonFreq = 3000 #11000
 
         mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
         mainScreen = pg.transform.scale(mainScreen,(1316,740))
@@ -405,7 +406,7 @@ while True:
                 zombieEventTimer = pg.time.get_ticks()
                 zombieSpeed += 0.5
 
-        zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie)
+        zombie = zm.Zombie(random.choice(random_xpos),zombieSpeed,isFlippedZombie, False)
         zombies_group.add(zombie)
 
     if pg.time.get_ticks() - dragonEventTimer >= dragonFreq and dragonsWave:
@@ -425,7 +426,7 @@ while True:
             dragon = dr.Dragon(random.choice(random_xpos2),random.choice(random_ypos),isFlippedDragon, "red")
 
         dragon_group.add(dragon)
-        
+
     main_game()
     platform_group.draw(screen)
     x, y = pg.mouse.get_pos()

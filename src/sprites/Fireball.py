@@ -14,7 +14,12 @@ class Fireball(pg.sprite.Sprite):
         length = vec.length()
         if y <= length:
             angle = math.acos(y/length)
-            self.image = pg.transform.rotate(self.tmp, 2 * angle)
+            if abs(InGame.player.rect.centerx - x) <= 100:
+                self.image = pg.transform.rotate(self.tmp, 0)
+            elif InGame.player.rect.centerx - x > 0:
+                self.image = pg.transform.rotate(self.tmp, angle / (math.pi/180))
+            elif InGame.player.rect.centerx - x < 0:
+                self.image = pg.transform.rotate(self.tmp, -angle / (math.pi/180))
         else:
             self.image = self.tmp
 

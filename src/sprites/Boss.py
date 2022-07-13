@@ -1,31 +1,14 @@
 import pygame as pg
-pg.init()
+from sprites import Zombie as zm
+import InGame
 
-class Boss(pg.sprite.Sprite):
+class Boss(zm.Zombie): # inherited: move, update_action, attack
     def __init__(self):
-        super().__init__()
-        
-        
-    def move():
-        pass
+        zm.Zombie.__init__(self,1250,1,False, True)
 
-    def appear():
-        pass
-
-    def idle():
-        pass
-
-    def attack():
-        pass
-    
-    def getDamage():
-        pass
-
-    def die():
-        pass
-
-    def draw():
-        pass
-
-    def update():
-        pass
+    def checkAttackRange(self):
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 350) and (not self.isFlipped and self.rect.centerx > InGame.player.rect.centerx):
+            return True
+        if (abs(InGame.player.rect.centerx - self.rect.centerx) < 350) and (self.isFlipped and self.rect.centerx < InGame.player.rect.centerx):
+            return True
+        return False
