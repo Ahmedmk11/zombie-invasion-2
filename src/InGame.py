@@ -91,6 +91,7 @@ platform_group = pg.sprite.GroupSingle()
 platform_group.add(platform)
 
 bullet_group = pg.sprite.Group()
+fireball_group = pg.sprite.Group()
 
 player = pl.Player()
 player_group = pg.sprite.GroupSingle()
@@ -98,6 +99,7 @@ player_group.add(player)
 
 def levelUp():
     bullet_group.empty()
+    fireball_group.empty()
     zombies_group.empty()
     dragon_group.empty()
     player_group.empty()
@@ -127,13 +129,15 @@ def main_game():
     pg.draw.rect(screen,(255,255,255),(58,35,200,10))
     pg.draw.rect(screen,(191,33,48),(58,35,player_group.sprite.hp,10))
     
-    bullet_group.draw(screen)  
+    bullet_group.draw(screen)
+    fireball_group.draw(screen)
     player.draw() 
     zombies_group.draw(screen)
     dragon_group.draw(screen)
     platform_group.draw(screen)
 
     bullet_group.update()
+    fireball_group.update()
     zombies_group.update()
     dragon_group.update()
     player_group.update()
@@ -162,14 +166,14 @@ def main_game():
             # Fireball_sound = mixer.Sound('Fireball.wav')
             # Fireball_sound.play()
             player.shoot(False)
-            player.shootingCoolDown = 25
+            player.shootingCoolDown = 10
 
     if isShootingLeftUp or isShootingRightUp:
         if player.shootingCoolDownUp == 0:
             # Fireball_sound = mixer.Sound('Fireball.wav')
             # Fireball_sound.play()
             player.shoot(True)
-            player.shootingCoolDownUp = 25
+            player.shootingCoolDownUp = 10
 
     if player.pos.x > WIDTH:
         player.pos.x = 0
@@ -331,6 +335,7 @@ while True:
         if level == 3 and zombiesShot == 10:
             player = levelUp()
             level = 4
+            zombiesWave = False
             dragonsWave = True
             zombiesShot = 0
         if level == 4 and zombiesShot == 10:
@@ -347,14 +352,14 @@ while True:
         #     game_over()
 
         if level == 2:
-            zombieFreq = 500
+            zombieFreq = 600
         if level == 3:
-            zombieFreq = 400
+            zombieFreq = 500
         if level == 4:
-            zombieFreq = 400
+            zombieFreq = 500
             dragonFreq = 3000
         if level == 5:
-            zombieFreq = 300
+            zombieFreq = 400
             dragonFreq = 2000
         if level == 6:
             zombieFreq = 5000
@@ -420,8 +425,7 @@ while True:
             dragon = dr.Dragon(random.choice(random_xpos2),random.choice(random_ypos),isFlippedDragon, "red")
 
         dragon_group.add(dragon)
-
-    print(zombieFreq)
+        
     main_game()
     platform_group.draw(screen)
     x, y = pg.mouse.get_pos()

@@ -1,5 +1,6 @@
 import pygame as pg
 import os, InGame
+from sprites import Fireball as fb
 pg.init()
 
 def makeAnimation(directory):
@@ -26,7 +27,7 @@ def makeAnimationFlip(directory):
     
     return tempList
 class Dragon(pg.sprite.Sprite):
-    def __init__(self,xpos, ypos, isFlipped,color):
+    def __init__(self,xpos, ypos, isFlipped, color):
         super().__init__()
         self.speed = 1
         self.updateTime = pg.time.get_ticks()
@@ -74,14 +75,28 @@ class Dragon(pg.sprite.Sprite):
         if self.isFlipped and self.rect.centerx < 200:
             self.rect.centerx += self.speed
 
-    def attack():
-        pass
-    
-    def explode():
-        pass
+    def attack(self):
+        if self.rect.left < 1316 and self.rect.right > 0:
+            if not self.isFlipped:
+                head = self.rect.left
+            else:
+                head = self.rect.right
+
+            fireball = fb.Fireball(head, self.rect.centery, self.color)
+            InGame.fireball_group.add(fireball)
 
     def update(self):
         animation_cooldown = 90
+
+        if self.attackCoolDown == 0 and InGame.alive:
+            # Fireball_sound = mixer.Sound('Fireball.wav')
+            # Fireball_sound.play()
+            self.attack()
+
+            if self.color == "red":
+                self.attackCoolDown = 200
+            elif self.color == "yellow":
+                self.attackCoolDown = 200
 
 
         self.image = self.anime[self.action][self.frameIndex]
