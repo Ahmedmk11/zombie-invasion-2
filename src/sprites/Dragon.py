@@ -34,7 +34,7 @@ class Dragon(pg.sprite.Sprite):
         self.frameIndex = 0
         self.attackCoolDown = 0
         self.isFlipped = isFlipped
-        self.attacking = False
+        self.flying = True
         self.isDying = True
         self.hp = 10
         self.xpos = xpos
@@ -85,8 +85,18 @@ class Dragon(pg.sprite.Sprite):
             fireball = fb.Fireball(head, self.rect.centery, self.color)
             InGame.fireball_group.add(fireball)
 
+            if pg.sprite.groupcollide(InGame.player_group, InGame.fireball_group, False, True):
+                if self.color == "yellow":
+                    InGame.player.getDamage(25)
+                else:
+                    InGame.player.getDamage(50)
+                    
+
     def update(self):
-        animation_cooldown = 90
+        if self.flying:
+            animation_cooldown = 110
+        else:
+            animation_cooldown = 60
 
         if self.attackCoolDown == 0 and InGame.alive:
             # Fireball_sound = mixer.Sound('Fireball.wav')
@@ -119,8 +129,8 @@ class Dragon(pg.sprite.Sprite):
         if InGame.alive:
             self.move()
 
-        if self.hp > 0:
-            self.walking = True
+        if self.hp <= 0:
+            self.flying = False
 
         if self.attackCoolDown > 0:
             self.attackCoolDown -= 1

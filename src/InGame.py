@@ -107,6 +107,7 @@ def levelUp():
     dragon_group.empty()
     player_group.empty()
     player = pl.Player()
+    print(player.action)
     player_group.add(player)
     return player
 
@@ -137,7 +138,7 @@ def main_game():
     zombies_group.draw(screen)
     dragon_group.draw(screen)
     boss_group.draw(screen)
-    player.draw()
+    player_group.draw(screen)
     platform_group.draw(screen)
 
     bullet_group.update()

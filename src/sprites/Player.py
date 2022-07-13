@@ -38,6 +38,13 @@ class Player(pg.sprite.Sprite):
         super().__init__()
         self.updateTime = pg.time.get_ticks()
         self.frameIndex = 0
+        InGame.isIdleRight = False
+        InGame.isShootingLeft = False
+        InGame.isShootingRight = False
+        InGame.isMovingLeft = False
+        InGame.isMovingRight = False
+        InGame.isShootingRightUp = False
+        InGame.isShootingLeftUp = False
         self.action = 0
         self.hp = 200
         self.vel_vec = vec(0,0)
@@ -49,7 +56,7 @@ class Player(pg.sprite.Sprite):
         self.isFlipped = False
         self.shootingCoolDown = 0
         self.shootingCoolDownUp = 0
-        
+
         self.direction = 1
 
         self.walkLeft = makeAnimation('resources/images/sprites/heroine/walk/')
@@ -143,9 +150,6 @@ class Player(pg.sprite.Sprite):
             InGame.isShootingRight = False
             InGame.isDeadRight = True
 
-    def draw(self):
-        InGame.screen.blit(self.image,self.rect)
-
     def update(self):
         animation_cooldown = 75
         self.image = self.anime[self.action][self.frameIndex]
@@ -164,6 +168,8 @@ class Player(pg.sprite.Sprite):
             self.shootingCoolDown -= 1
         if self.shootingCoolDownUp > 0:
             self.shootingCoolDownUp -= 1
+        
+        InGame.screen.blit(self.image,self.rect)
 
     def update_action(self,new_action):
         if new_action != self.action:
