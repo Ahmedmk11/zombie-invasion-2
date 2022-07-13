@@ -76,10 +76,10 @@ class Player(pg.sprite.Sprite):
         self.anime.append(self.shootRight)
         self.anime.append(self.dieLeft)
         self.anime.append(self.dieRight)
+        self.pos = vec(WIDTH/2,540)
 
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.pos = vec(WIDTH/2,555)
         
         
 

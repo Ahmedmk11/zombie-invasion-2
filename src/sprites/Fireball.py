@@ -8,6 +8,7 @@ class Fireball(pg.sprite.Sprite):
         self.speed = 10
         self.color = color
         self.tmp = pg.image.load(f'resources/images/sprites/dragons/fireball_{self.color}.png')
+        self.flag = True
 
         vec = vector(x,y) - vector(InGame.player.rect.centerx, InGame.player.rect.centery)
         unitVec = vector.normalize(vec)

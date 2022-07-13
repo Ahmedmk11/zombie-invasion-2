@@ -70,7 +70,7 @@ class Zombie(pg.sprite.Sprite):
             self.anime.append(self.dieLeft)
             self.anime.append(self.dieRight)
         else:
-            self.hp = 1000
+            self.hp = 2000
             self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
             self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
             self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
@@ -98,7 +98,7 @@ class Zombie(pg.sprite.Sprite):
         if not isBoss:
             self.rect.midbottom = (xpos,555)
         else:
-            self.rect.midbottom = (xpos,540)
+            self.rect.midbottom = (xpos,550)
 
         
     def move(self):
@@ -138,8 +138,10 @@ class Zombie(pg.sprite.Sprite):
     def update(self):
         if self.attacking:
             animation_cooldown = 125
-        elif self.appearing:
+        elif self.appearing and not self.isBoss:
             animation_cooldown = 100
+        elif self.appearing and self.isBoss:
+            animation_cooldown = 120
         elif self.hp == 0:
             animation_cooldown = 60
         else:

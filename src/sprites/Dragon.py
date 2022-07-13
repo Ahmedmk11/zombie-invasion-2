@@ -40,6 +40,7 @@ class Dragon(pg.sprite.Sprite):
         self.xpos = xpos
         self.ypos = ypos
         self.color = color
+        self.fireball = ""
 
         if not self.isFlipped:
             self.action = 0
@@ -84,13 +85,8 @@ class Dragon(pg.sprite.Sprite):
 
             fireball = fb.Fireball(head, self.rect.centery, self.color)
             InGame.fireball_group.add(fireball)
-
-            if pg.sprite.groupcollide(InGame.player_group, InGame.fireball_group, False, True):
-                if self.color == "yellow":
-                    InGame.player.getDamage(25)
-                else:
-                    InGame.player.getDamage(50)
-                    
+            return fireball
+        return ""
 
     def update(self):
         if self.flying:
@@ -101,7 +97,7 @@ class Dragon(pg.sprite.Sprite):
         if self.attackCoolDown == 0 and InGame.alive:
             # Fireball_sound = mixer.Sound('Fireball.wav')
             # Fireball_sound.play()
-            self.attack()
+            self.fireball = self.attack()
 
             if self.color == "red":
                 self.attackCoolDown = 200
@@ -111,6 +107,16 @@ class Dragon(pg.sprite.Sprite):
 
         self.image = self.anime[self.action][self.frameIndex]
 
+        if (self.fireball != "" and self.fireball.flag and abs(self.fireball.rect.centerx - InGame.player.rect.centerx) <= 24
+        and abs(self.fireball.rect.centery - InGame.player.rect.centery) <= 32):
+
+            self.fireball.kill()
+            if self.color == "yellow":
+                InGame.player.getDamage(5)
+            else:
+                InGame.player.getDamage(5)
+            self.fireball.flag = False
+
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:
             self.updateTime = pg.time.get_ticks()
 
@@ -119,9 +125,6 @@ class Dragon(pg.sprite.Sprite):
                 self.kill()
             else:
                 self.frameIndex += 1
-
-            # if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
-            #     InGame.player.getDamage(10)
 
         if self.frameIndex >= len(self.anime[self.action]):
             self.frameIndex = 0

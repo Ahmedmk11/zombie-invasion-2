@@ -351,6 +351,7 @@ while True:
             player = levelUp()
             level = 6
             zombiesShot = 0
+            zombiesWave = False #
             boss = Boss.Boss()
             boss_group.add(boss)
         if level == 6 and boss.hp == 0:
