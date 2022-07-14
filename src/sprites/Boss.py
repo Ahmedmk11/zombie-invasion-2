@@ -31,7 +31,7 @@ class Boss(zm.Zombie):
     def __init__(self):
         zm.Zombie.__init__(self,3,True)
         self.isFlipped = False
-        self.hp = 2000
+        self.hp = 100
         self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
         self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')

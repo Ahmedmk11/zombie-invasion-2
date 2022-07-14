@@ -14,13 +14,16 @@ HEIGHT = 740
 lives = 3
 level = 5
 remaining_mins = 0
-remaining_secs = 15
-rtime = 15
+remaining_secs = 2
+rtime = 2
 
 zombiesWave = True
 dragonsWave = False
 isGameOver = False
 bossExists = False
+
+checkpoint = True
+checkpointFlag = False
 
 alive = True
 isIdleLeft = True
@@ -54,6 +57,10 @@ mainScreen = pg.image.load('resources/images/world/level1/1.png')
 mainScreen = pg.transform.scale(mainScreen,(1316,740))
 cursor = pg.image.load('resources/images/app/cursor.png')
 cursorRect = cursor.get_rect()
+
+timerFont = pg.font.Font('resources/fonts/timer.ttf',30)
+levelFont = pg.font.Font('resources/fonts/lemonmilk.otf',30)
+checkpointFont = pg.font.Font('resources/fonts/lemonmilk.otf',20)
 
 livesList = []
 livesListRect = []
@@ -141,8 +148,9 @@ def main_game():
 
     if bossExists:
         if level == 6 and boss.hp > 0:
-            pg.draw.rect(screen,(0,0,0),(408,35,500,20))
+            pg.draw.rect(screen,(105,105,105),(405,32,506,26))
             pg.draw.rect(screen, (34,139,34),(408,35,boss_group.sprite.hp/4,20))
+            pg.draw.rect(screen,(105,105,105),(658,35,6,20))
             screen.blit(bossHead, bossHead_rect)
     
     bullet_group.draw(screen)
@@ -340,6 +348,19 @@ while True:
         shotDragon.hp = 0
 
     if mode == 1:
+
+        if bossExists:
+            if boss.hp <= 50 and checkpoint:
+                checkpointTimer = pg.time.get_ticks()
+                checkpoint = False
+                checkpointFlag = True
+                checkpointText = checkpointFont.render(f'Checkpoint!',True,(255,255,255))
+                checkpointRect = checkpointText.get_rect(center = (1210, 67))
+            
+            if checkpointFlag:
+                if pg.time.get_ticks() - checkpointTimer <= 5000:
+                    screen.blit(checkpointText, checkpointRect)
+
         if player_group.sprite.hp <= 0:
             if lives == 0:
                 zombiesWave = False
@@ -404,7 +425,7 @@ while True:
                 bossDelay = pg.time.get_ticks()
                 player = levelUp()
             
-            rtime = 15
+            rtime = 2
 
         if not bossExists and level == 6 and pg.time.get_ticks() - bossDelay >= 5000:
             boss = Boss.Boss()
@@ -436,10 +457,6 @@ while True:
                     elif boss.isFlipped:
                         boss.update_action(9)
                     boss.rect.bottom = 555
-
-
-        timerFont = pg.font.Font('resources/fonts/timer.ttf',30)
-        levelFont = pg.font.Font('resources/fonts/lemonmilk.otf',30)
 
         if remaining_secs < 10:
             timer = timerFont.render(f"{remaining_mins}:0{remaining_secs}",True,(255,255,255))
