@@ -195,10 +195,10 @@ class Zombie(pg.sprite.Sprite):
                 leftDist = self.rect.left - InGame.player.rect.right
 
             if not self.isFlipped:
-                if rightDist <= leftDist:
+                if rightDist <= leftDist and not rightDist < 0:
                     self.isFlipped = True
             else:
-                if rightDist > leftDist:
+                if rightDist > leftDist and not leftDist < 0:
                     self.isFlipped = False
 
             if self.hp <= 0:

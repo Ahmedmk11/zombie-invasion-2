@@ -12,10 +12,10 @@ WIDTH = 1316
 HEIGHT = 740
 
 lives = 3
-level = 5
-remaining_mins = 0
-remaining_secs = 2
-rtime = 2
+level = 1
+remaining_mins = 1
+remaining_secs = 30
+rtime = 90
 
 zombiesWave = True
 dragonsWave = False
@@ -370,7 +370,7 @@ while True:
             else:
                 lives -= 1
                 livesListRect.pop()
-                rtime = 30
+                rtime = 90
                 bullet_group.empty()
                 fireball_group.empty()
                 zombies_group.empty()
@@ -425,7 +425,7 @@ while True:
                 bossDelay = pg.time.get_ticks()
                 player = levelUp()
             
-            rtime = 2
+            rtime = 90
 
         if not bossExists and level == 6 and pg.time.get_ticks() - bossDelay >= 5000:
             boss = Boss.Boss()
@@ -493,7 +493,7 @@ while True:
             else:
                 lives -= 1
                 livesListRect.pop()
-                rtime = 30
+                rtime = 90
                 bullet_group.empty()
                 fireball_group.empty()
                 zombies_group.empty()
