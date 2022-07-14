@@ -1,4 +1,4 @@
-from pickle import TRUE
+
 from sprites import Bullet as bt
 from pygame import Vector2 as vec
 import pygame as pg, os, InGame
@@ -60,7 +60,7 @@ class Player(pg.sprite.Sprite):
         if InGame.level == 6:
             self.action = 1
             self.isFlipped = True
-            self.pos = vec(200,540)
+            self.pos = vec(438,540)
             self.direction = -1
         else:
             self.action = 0

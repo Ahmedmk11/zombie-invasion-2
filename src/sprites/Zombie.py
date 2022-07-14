@@ -1,8 +1,6 @@
-from curses.ascii import isblank
 import random
-from turtle import width
 import pygame as pg
-from PIL import Image
+from pygame import Vector2 as vector
 import os, InGame
 pg.init()
 
@@ -177,17 +175,21 @@ class Zombie(pg.sprite.Sprite):
             self.kill()
         
         if self.isBoss:
-            if not self.isFlipped:
-                if InGame.player.rect.left >= self.rect.centerx and self.rect.centerx > InGame.WIDTH/2:
-                    self.isFlipped = True
-                elif InGame.player.rect.left >= self.rect.centerx and self.rect.centerx < InGame.WIDTH/2:
-                    self.isFlipped = False
-            else:
-                if InGame.player.rect.right < self.rect.centerx and self.rect.centerx <= InGame.WIDTH/2:
-                    self.isFlipped = False
-                elif InGame.player.rect.left < self.rect.centerx and self.rect.centerx > InGame.WIDTH/2:
-                    self.isFlipped = True
 
+            if InGame.player.rect.left >= self.rect.centerx:
+                rightDist = InGame.player.rect.left - self.rect.centerx
+                leftDist = (InGame.WIDTH - InGame.player.rect.centerx) + self.rect.centerx
+            else:
+                rightDist = InGame.player.rect.left + InGame.WIDTH - self.rect.centerx
+                leftDist = self.rect.centerx - InGame.player.rect.right
+
+            if not self.isFlipped:
+                if rightDist <= leftDist:
+                    self.isFlipped = True
+            else:
+                if rightDist > leftDist:
+                    self.isFlipped = False
+                    
             if self.hp <= 0:
                 InGame.alive = False
                 if not self.isFlipped:

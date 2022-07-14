@@ -1,6 +1,7 @@
 import os
 import pygame as pg
 from sprites import Zombie as zm
+from pygame import Vector2 as vector
 import InGame
 
 def makeAnimation(directory):
@@ -27,11 +28,11 @@ def makeAnimationFlip(directory):
     
     return tempList
 
-class Boss(zm.Zombie): # inherited: move, update_action, attack
+class Boss(zm.Zombie):
     def __init__(self):
         zm.Zombie.__init__(self,3,True)
         self.isFlipped = False
-        self.hp = 200
+        self.hp = 2000
         self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
         self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
@@ -58,7 +59,7 @@ class Boss(zm.Zombie): # inherited: move, update_action, attack
 
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (1250,555)
+        self.rect.midbottom = (877,555)
 
     def checkAttackRange(self):
         if (abs(InGame.player.rect.centerx - self.rect.centerx) < 35) and (not self.isFlipped and self.rect.centerx >= InGame.player.rect.centerx):
