@@ -148,7 +148,13 @@ class Zombie(pg.sprite.Sprite):
                 self.frameIndex += 1
 
             if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
-                InGame.player.getDamage(10)
+                if not self.isBoss:
+                    InGame.player.getDamage(10)
+                else:
+                    InGame.player.getDamage(50)
+
+
+
             if pg.sprite.spritecollide(InGame.player_group.sprite,InGame.zombies_group,False) and self.checkDamageRange():
                 InGame.player_group.sprite.getDamage(0.5)
 
@@ -176,12 +182,12 @@ class Zombie(pg.sprite.Sprite):
         
         if self.isBoss:
 
-            if InGame.player.rect.left >= self.rect.centerx:
-                rightDist = InGame.player.rect.left - self.rect.centerx
-                leftDist = (InGame.WIDTH - InGame.player.rect.centerx) + self.rect.centerx
+            if InGame.player.rect.left >= self.rect.right:
+                rightDist = InGame.player.rect.left - self.rect.right
+                leftDist = (InGame.WIDTH - InGame.player.rect.right) + self.rect.left
             else:
-                rightDist = InGame.player.rect.left + InGame.WIDTH - self.rect.centerx
-                leftDist = self.rect.centerx - InGame.player.rect.right
+                rightDist = InGame.player.rect.left + (InGame.WIDTH - self.rect.right)
+                leftDist = self.rect.left - InGame.player.rect.right
 
             if not self.isFlipped:
                 if rightDist <= leftDist:
@@ -189,7 +195,7 @@ class Zombie(pg.sprite.Sprite):
             else:
                 if rightDist > leftDist:
                     self.isFlipped = False
-                    
+
             if self.hp <= 0:
                 InGame.alive = False
                 if not self.isFlipped:

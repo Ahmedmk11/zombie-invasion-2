@@ -1,7 +1,6 @@
 import os
 import pygame as pg
 from sprites import Zombie as zm
-from pygame import Vector2 as vector
 import InGame
 
 def makeAnimation(directory):

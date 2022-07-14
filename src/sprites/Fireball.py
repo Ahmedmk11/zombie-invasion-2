@@ -5,7 +5,7 @@ pg.init()
 class Fireball(pg.sprite.Sprite):
     def __init__(self, x, y, color):
         super().__init__()
-        self.speed = 10
+        self.speed = 15
         self.color = color
         self.tmp = pg.image.load(f'resources/images/sprites/dragons/fireball_{self.color}.png')
         self.flag = True

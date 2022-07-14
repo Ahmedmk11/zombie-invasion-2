@@ -92,7 +92,7 @@ class Dragon(pg.sprite.Sprite):
         if self.flying:
             animation_cooldown = 110
         else:
-            animation_cooldown = 60
+            animation_cooldown = 20
 
         if self.attackCoolDown == 0 and InGame.alive:
             # Fireball_sound = mixer.Sound('Fireball.wav')
@@ -112,9 +112,9 @@ class Dragon(pg.sprite.Sprite):
 
             self.fireball.kill()
             if self.color == "yellow":
-                InGame.player.getDamage(5)
+                InGame.player.getDamage(15)
             else:
-                InGame.player.getDamage(5)
+                InGame.player.getDamage(25)
             self.fireball.flag = False
 
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:
