@@ -1,17 +1,23 @@
+import datetime
 from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
 from sprites import Dragon as dr
 from sprites import Boss 
 from pygame import mixer
+from threading import Thread
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
 WIDTH = 1316
 HEIGHT = 740
 
-level = 5
 lives = 3
+level = 1
+remaining_mins = 1
+remaining_secs = 30
+rtime = 90
+
 zombiesWave = True
 dragonsWave = False
 isGameOver = False
@@ -47,8 +53,6 @@ isFlyingRight = False
 isDyingLeft = False
 isDyingRight = False
 
-
-
 screen = pg.display.set_mode((WIDTH,HEIGHT))
 
 heart = pg.transform.flip(pg.image.load('resources/images/sprites/heroine/heart.png'),True,False)
@@ -56,7 +60,6 @@ heart_rect = heart.get_rect(center = (5,0))
 
 bossHead = pg.image.load('resources/images/sprites/boss/head.png')
 bossHead_rect = bossHead.get_rect(left = 900)
-
 
 appIcon = pg.image.load('resources/images/app/icon.png')
 pg.display.set_icon(appIcon)
@@ -203,6 +206,8 @@ def main_game():
         if boss.rect.right < 0:
             boss.rect.left = WIDTH
 
+timeFlag = True
+
 while True:
     screen.fill((0,0,0))
     screen.blit(mainScreen,(0,0))
@@ -344,34 +349,49 @@ while True:
             dragonsWave = False
             player.die()
             text, text_rect, isGameOver = game_over()
+
+
+
+        if rtime > 0 and level !=  6 and alive:
+            if timeFlag:
+                if datetime.datetime.now().second == 59:
+                    now = 0
+                else:
+                    now = datetime.datetime.now().second
+                timeFlag = False
+            if (abs(datetime.datetime.now().second - now) == 1):
+                timeFlag = True
+                rtime -= 1
+                remaining_mins = int(rtime/60)
+                remaining_secs = int(rtime%60)
+            print(datetime.datetime.now().second, now, datetime.datetime.now().second - now)
         
-        else:
-            if level == 1 and zombiesShot == 1:
+        if rtime <= 0:
+            if level == 1:
                 level = 2
                 player = levelUp()
-                zombiesShot = 0
-            if level == 2 and zombiesShot == 1:
+            elif level == 2:
                 level = 3
                 player = levelUp()
-                zombiesShot = 0
-            if level == 3 and zombiesShot == 1:
+            elif level == 3:
                 level = 4
                 player = levelUp()
                 dragonsWave = True
-                zombiesShot = 0
-            if level == 4 and zombiesShot == 1:
+            elif level == 4:
                 level = 5
                 player = levelUp()
-                zombiesShot = 0
-            if level == 5 and zombiesShot == 1:
+            elif level == 5:
                 level = 6
                 player = levelUp()
-                zombiesShot = 0
                 zombiesWave = False #
                 boss = Boss.Boss()
                 boss_group.add(boss)
-            if level == 6 and boss.hp <= 0:
-                text, text_rect, isGameOver = game_over()
+            
+            rtime = 90
+
+
+        if level == 6 and boss.hp <= 0:
+            text, text_rect, isGameOver = game_over()
 
         if level == 2:
             zombieFreq = 600
@@ -392,6 +412,22 @@ while True:
                     boss.update_action(8)
                 elif boss.isFlipped:
                     boss.update_action(9)
+
+
+        timerFont = pg.font.Font('resources/fonts/timer.ttf',30)
+        levelFont = pg.font.Font('resources/fonts/lemonmilk.otf',30)
+
+        if remaining_secs < 10:
+            timer = timerFont.render(f"{remaining_mins}:0{remaining_secs}",True,(255,255,255))
+        else:
+            timer = timerFont.render(f"{remaining_mins}:{remaining_secs}",True,(255,255,255))
+        
+        levelText = levelFont.render(f"Level {level}",True,(255,255,255))
+        levelRect = levelText.get_rect(center = (1200, 37))
+        timerRect = timer.get_rect(center = (1200, 75))
+        screen.blit(levelText, levelRect)
+        if level != 6:
+            screen.blit(timer,timerRect)
 
         mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
         mainScreen = pg.transform.scale(mainScreen,(1316,740))

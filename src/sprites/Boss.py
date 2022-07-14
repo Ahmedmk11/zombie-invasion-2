@@ -28,7 +28,7 @@ def makeAnimationFlip(directory):
     
     return tempList
 
-class Boss(zm.Zombie):
+class Boss(zm.Zombie): 
     def __init__(self):
         zm.Zombie.__init__(self,3,True)
         self.isFlipped = False
