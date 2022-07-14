@@ -138,6 +138,11 @@ class Zombie(pg.sprite.Sprite):
             if self.appearing and self.frameIndex == len(self.anime[self.action]) - 1:
                 self.appearing = False
                 self.walking = True
+                if not self.isBoss:
+                    self.rect.bottom = 550
+                else:
+                    self.rect.bottom = 530
+
             else:
                 self.frameIndex += 1
 
@@ -165,7 +170,7 @@ class Zombie(pg.sprite.Sprite):
             self.move()
 
         if not self.appearing:
-            if self.checkAttackRange():
+            if self.checkAttackRange() and InGame.player.hp > 0:
                 self.attacking = True
                 self.walking = False
                 self.attack()
