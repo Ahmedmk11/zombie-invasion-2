@@ -5,6 +5,7 @@ from sprites import Zombie as zm
 from sprites import Dragon as dr
 from sprites import Boss 
 from pygame import mixer
+import pygame_menu
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
@@ -33,6 +34,10 @@ def game_over():
             gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
             text = gameOverFont.render("You Won",True,(255,255,255))
             text_rect = text.get_rect(center = (653,243))
+            for zm in zombies_group:
+                zm.hp = 0
+            for dr in dragon_group:
+                dr.hp = 0
             isGameOver = True
         
     
@@ -48,7 +53,7 @@ def main_game():
     if bossExists:
         if level == 6 and boss.hp > 0:
             pg.draw.rect(screen,(105,105,105),(405,32,506,26))
-            pg.draw.rect(screen, (34,139,34),(408,35,boss_group.sprite.hp/4,20))
+            pg.draw.rect(screen, (34,139,34),(408,35,boss_group.sprite.hp/6,20))
             pg.draw.rect(screen,(105,105,105),(658,35,6,20))
             screen.blit(bossHead, bossHead_rect)
     
@@ -129,7 +134,7 @@ while True:
         pg.display.set_caption("Zombie Invasion: Apocalypse")
         clock = pg.time.Clock()
         pg.mouse.set_visible(True)
-        mainScreen = pg.image.load('resources/images/world/level6/6.png')
+        mainScreen = pg.image.load('resources/images/world/6.png')
         mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT))
 
         up = pg.image.load("resources/images/app/up.png")
@@ -196,7 +201,7 @@ while True:
                     pg.quit()
                     sys.exit()
 
-                if event.type == pg.MOUSEBUTTONDOWN and (playRect1.collidepoint(event.pos) or playRect2.collidepoint(event.pos)):
+                if event.type == pg.MOUSEBUTTONUP and (playRect1.collidepoint(event.pos) or playRect2.collidepoint(event.pos)):
                     if playRect1.collidepoint(event.pos):
                         mode = 1
                     else:
@@ -205,7 +210,7 @@ while True:
                     window = 2
                     break
 
-                if event.type == pg.MOUSEBUTTONDOWN and leaderBoardRect.collidepoint(event.pos):
+                if event.type == pg.MOUSEBUTTONUP and leaderBoardRect.collidepoint(event.pos):
 
                     windowFlag = False
                     window = 3
@@ -259,8 +264,8 @@ while True:
         lives = 3
         level = 1
         remaining_mins = 1
-        remaining_secs = 30
-        rtime = 90
+        remaining_secs = 15
+        rtime = 75
         save = False
 
         zombiesWave = True
@@ -300,7 +305,7 @@ while True:
         pg.display.set_caption("Zombie Invasion: Apocalypse")
         clock = pg.time.Clock()
         pg.mouse.set_visible(False)
-        mainScreen = pg.image.load('resources/images/world/level1/1.png')
+        mainScreen = pg.image.load('resources/images/world/1.png')
         mainScreen = pg.transform.scale(mainScreen,(1316,740))
         cursor = pg.image.load('resources/images/app/cursor.png')
         cursorRect = cursor.get_rect()
@@ -370,15 +375,15 @@ while True:
 
 
         while True:
-            screen.fill((0,0,0))
+            screen.fill((40,40,40))
             screen.blit(mainScreen,(0,0))
             random_side2 = random.randrange(0,2)
 
             mainMenuText = mainMenuFont.render("Main Menu",True,(0,0,0))
-            mainMenuRect = mainMenuText.get_rect(center = (1190,670))
+            mainMenuRect = mainMenuText.get_rect(center = (1190,680))
 
             saveText = saveFont.render("Save Score",True,(0,0,0))
-            saveRect = saveText.get_rect(center = (1190,638))
+            saveRect = saveText.get_rect(center = (1190,635))
 
             if mainMenuRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 8)):
                 mainMenuFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
@@ -421,21 +426,21 @@ while True:
                             nameText += event.unicode
                     
 
-                if event.type == pg.MOUSEBUTTONDOWN and inputBox.collidepoint(event.pos):
+                if event.type == pg.MOUSEBUTTONUP and inputBox.collidepoint(event.pos):
                     active = True
                     nameText = ""
                     nameBox.left = 520
-                elif event.type == pg.MOUSEBUTTONDOWN and not inputBox.collidepoint(event.pos):
+                elif event.type == pg.MOUSEBUTTONUP and not inputBox.collidepoint(event.pos):
                     active = False
                     nameText = "Name Here"
                     nameBox.center = (658,350)
 
-                if event.type == pg.MOUSEBUTTONDOWN and mainMenuRect.collidepoint(event.pos):
+                if event.type == pg.MOUSEBUTTONUP and mainMenuRect.collidepoint(event.pos):
                     windowFlag = False
                     window = 1
                     break
 
-                if event.type == pg.MOUSEBUTTONDOWN and saveRect.collidepoint(event.pos):
+                if event.type == pg.MOUSEBUTTONUP and saveRect.collidepoint(event.pos):
                     save = True
 
                 if event.type == pg.KEYDOWN and alive:
@@ -544,7 +549,7 @@ while True:
                             shotZombie.update_action(8)
                         elif shotZombie.isFlipped:
                             shotZombie.update_action(9)
-                        shotZombie.rect.bottom = 555
+                        shotZombie.rect.bottom = 610
 
                     shotZombie.hp = 0
 
@@ -565,7 +570,7 @@ while True:
             if mode == 1:
 
                 if bossExists:
-                    if boss.hp <= 50 and checkpoint:
+                    if boss.hp <= 1500 and checkpoint:
                         checkpointTimer = pg.time.get_ticks()
                         checkpoint = False
                         checkpointFlag = True
@@ -583,16 +588,16 @@ while True:
                         player.die()
                         text, text_rect, isGameOver = game_over()
                     else:
+                        rtime = 75
                         lives -= 1
                         livesListRect.pop()
-                        rtime = 90
                         bullet_group.empty()
                         fireball_group.empty()
                         zombies_group.empty()
                         dragon_group.empty()
                         player_group.empty()
                         if bossExists:
-                            if boss.hp > 1000:
+                            if boss.hp > 1500:
                                 boss_group.empty()
                                 boss = Boss.Boss()
                                 boss_group.add(boss)
@@ -638,8 +643,10 @@ while True:
                         level = 6
                         bossDelay = pg.time.get_ticks()
                         player = levelUp()
+                    mainScreen = pg.image.load(f'resources/images/world/{level}.png')
+                    mainScreen = pg.transform.scale(mainScreen,(1316,740))
                     
-                    rtime = 90
+                    rtime = 75
 
                 if not bossExists and level == 6 and pg.time.get_ticks() - bossDelay >= 5000:
                     boss = Boss.Boss()
@@ -670,7 +677,7 @@ while True:
                                 boss.update_action(8)
                             elif boss.isFlipped:
                                 boss.update_action(9)
-                            boss.rect.bottom = 555
+                            boss.rect.bottom = 610
 
                 if remaining_secs < 10:
                     timer = timerFont.render(f"{remaining_mins}:0{remaining_secs}",True,(255,255,255))
@@ -683,9 +690,6 @@ while True:
                 screen.blit(levelText, levelRect)
                 if level != 6:
                     screen.blit(timer,timerRect)
-
-                mainScreen = pg.image.load(f'resources/images/world/level{level}/{level}.png')
-                mainScreen = pg.transform.scale(mainScreen,(1316,740))
                 
             elif mode == 2:
                 fontScore = pg.font.Font('resources/fonts/font.ttf',20)
@@ -699,15 +703,15 @@ while True:
                         zombieFreqTimer = pg.time.get_ticks()
                         zombieFreq -= 5
                 else:
-                    zombiesWave = False
-                    dragonsWave = False
                     if lives == 0:
+                        zombiesWave = False
+                        dragonsWave = False
                         player.die()
                         text, text_rect, isGameOver = game_over()
                     else:
+                        rtime = 75
                         lives -= 1
                         livesListRect.pop()
-                        rtime = 90
                         bullet_group.empty()
                         fireball_group.empty()
                         zombies_group.empty()
@@ -743,7 +747,7 @@ while True:
                     random_xpos2 = range(1406,1416)
                     isFlippedDragon = False
 
-                random_ypos = range(100,200)
+                random_ypos = range(100,250)
 
                 if level == 4:
                     dragon = dr.Dragon(random.choice(random_xpos2),random.choice(random_ypos),isFlippedDragon, "yellow")
@@ -786,4 +790,72 @@ while True:
     if window == 3:
         with open("leaderboard.pickle", "rb") as file:
             loaded_dict = pickle.load(file)
-        print(loaded_dict) # testing
+
+        WIDTH = 1316
+        HEIGHT = 740
+
+        screen = pg.display.set_mode((WIDTH,HEIGHT))
+        appIcon = pg.image.load('resources/images/app/icon.png')
+        pg.display.set_icon(appIcon)
+        pg.display.set_caption("Zombie Invasion: Apocalypse")
+        clock = pg.time.Clock()
+        pg.mouse.set_visible(True)
+        mainScreen = pg.image.load('resources/images/app/leaderboard.jpg') #
+        mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT)) #
+
+        cursor = pg.image.load('resources/images/app/cursor.png')
+        cursorRect = cursor.get_rect()
+        pg.mouse.set_visible(False)
+
+        MAX_X, MAX_Y = screen.get_size()
+
+        mainMenuFont = pg.font.Font('resources/fonts/font.ttf',30)
+        leaderBoardNamesFont = pg.font.Font('resources/fonts/leaderboard.ttf',70) #
+        mainFont = pg.font.Font('resources/fonts/font.ttf',90) #
+
+        # mixer.music.load('MainMenu.wav')
+        # mixer.music.play(-1)
+
+        while True:
+            screen.blit(mainScreen,(0,0))
+            cursorRect.center = pg.mouse.get_pos()
+
+            mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
+            leaderBoardTitle = mainFont.render("Leaderboard",True,(255,255,255))
+            leaderBoardTitleRect = leaderBoardTitle.get_rect(center = (WIDTH/2,100))
+
+
+
+            mainMenuText2 = mainMenuFont.render("Main Menu",True,(255,255,255))
+            mainMenuRect2 = mainMenuText2.get_rect(center = (1190,670))
+
+            if mainMenuRect2.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 8)):
+                mainMenuFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
+            else:
+                mainMenuFont = pg.font.Font('resources/fonts/font.ttf',30)
+
+            for event in pg.event.get():
+                if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                    pg.quit()
+                    sys.exit()
+
+                if event.type == pg.MOUSEBUTTONUP and mainMenuRect2.collidepoint(event.pos):
+                    windowFlag = False
+                    window = 1
+                    break
+               
+
+            if not windowFlag:
+                windowFlag = True
+                break
+                
+            screen.blit(mainMenuText2,mainMenuRect2)
+            screen.blit(leaderBoardTitle,leaderBoardTitleRect)
+
+
+            x, y = pg.mouse.get_pos()
+            if x > 0 and x < MAX_X - 1 and y > 0 and y < MAX_Y - 1:
+                screen.blit(cursor, cursorRect)
+                
+            pg.display.update()
+            clock.tick(60)

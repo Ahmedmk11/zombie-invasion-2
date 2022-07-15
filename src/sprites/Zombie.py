@@ -79,7 +79,7 @@ class Zombie(pg.sprite.Sprite):
         
         self.image = self.anime[self.action][self.frameIndex]
         self.rect = self.image.get_rect()
-        self.rect.midbottom = (random.choice(random_xpos),555)
+        self.rect.midbottom = (random.choice(random_xpos),610)
 
         
     def move(self):
@@ -139,9 +139,9 @@ class Zombie(pg.sprite.Sprite):
                 self.appearing = False
                 self.walking = True
                 if not self.isBoss:
-                    self.rect.bottom = 550
+                    self.rect.bottom = 605
                 else:
-                    self.rect.bottom = 530
+                    self.rect.bottom = 583
 
             else:
                 self.frameIndex += 1
