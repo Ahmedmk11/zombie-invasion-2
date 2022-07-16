@@ -48,7 +48,6 @@ def game_over():
 
     bullet_group.empty()
     fireball_group.empty()
-    cursorRect.center = pg.mouse.get_pos()
     
     gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
 
@@ -171,12 +170,9 @@ while True:
         screen = pg.display.set_mode((WIDTH,HEIGHT))
         pg.display.set_icon(appIcon)
         clock = pg.time.Clock()
-        pg.mouse.set_visible(True)
         mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT))
-
-        cursorRect = cursor.get_rect()
         pg.mouse.set_visible(False)
-        MAX_X, MAX_Y = screen.get_size()
+
 
         titleText = mainFont.render("Zombie Invasion",True,(255,255,255))
         instructions = instHead.render("Welcome to Zombie Invasion: Apocalypse",True,(255,255,255))
@@ -185,6 +181,8 @@ while True:
         instructions3 = instFont.render("Difficulty keeps increasing each level in 'Story' and as time progress in 'Survival'",True,(255,255,255))
         instructions4 = instFont.render("Have Fun!",True,(255,255,255))
 
+        MAX_X, MAX_Y = screen.get_size()
+        cursorRect = cursor.get_rect()
         titleRect = titleText.get_rect(center = (WIDTH/2,100)) 
         helpRect = infoSymbol.get_rect(center = (50,710))
 
@@ -300,7 +298,7 @@ while True:
         nameText = "Name Here"
         
         save = False
-        zombiesWave = False
+        zombiesWave = True
         dragonsWave = False
         isGameOver = False
         bossExists = False
@@ -389,6 +387,8 @@ while True:
         while True:
             screen.fill((40,40,40))
             screen.blit(mainScreen,(0,0))
+            cursorRect.center = pg.mouse.get_pos()
+            
             random_side2 = random.randrange(0,2)
 
             mainMenuText = mainMenuFont.render("Main Menu",True,(0,0,0))
@@ -586,7 +586,7 @@ while True:
             if mode == 1:
 
                 if bossExists:
-                    if boss.hp <= 250 and checkpoint:
+                    if boss.hp <= 1500 and checkpoint:
                         checkpointTimer = pg.time.get_ticks()
                         checkpoint = False
                         checkpointFlag = True
@@ -616,7 +616,7 @@ while True:
                         dragon_group.empty()
                         player_group.empty()
                         if bossExists:
-                            if boss.hp > 250:
+                            if boss.hp > 1500:
                                 boss_group.empty()
                                 boss = Boss.Boss()
                                 boss_group.add(boss)
@@ -691,10 +691,10 @@ while True:
                     zombieFreq = 400
                 if level == 4:
                     zombieFreq = 500
-                    dragonFreq = 3000
+                    dragonFreq = 6000
                 if level == 5:
-                    zombieFreq = 400
-                    dragonFreq = 2000
+                    zombieFreq = 500
+                    dragonFreq = 5000
                 if level == 6:
                     zombieFreq = 3000
                     dragonFreq = 5000
@@ -801,7 +801,6 @@ while True:
                         screen.blit(text,text_rect)
                 else:
                     screen.blit(text,text_rect)
-                screen.blit(mainMenuText,mainMenuRect)
                 if mode == 2:
                     screen.blit(saveText, saveRect)
                     if save:
@@ -812,9 +811,11 @@ while True:
                         screen.blit(empty,inputBox)
                         nameIn = nameFont.render(nameText,True,(0,0,0))
                         screen.blit(nameIn,nameBox)
-                if not alive and x > 0 and x < 1315 and y > 0 and y < 739:
-                    screen.blit(cursor, cursorRect)
-            
+
+            screen.blit(mainMenuText,mainMenuRect)
+            if x > 0 and x < 1315 and y > 0 and y < 739:
+                screen.blit(cursor, cursorRect)
+                    
             for rect in livesListRect:
                 screen.blit(livesImg, rect)
             pg.display.update()
