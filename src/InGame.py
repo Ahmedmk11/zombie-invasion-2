@@ -1,11 +1,11 @@
 import datetime
+from operator import itemgetter
 from sprites import Player as pl
 from sprites import Platform as pt
 from sprites import Zombie as zm
 from sprites import Dragon as dr
 from sprites import Boss 
 from pygame import mixer
-import pygame_menu
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
@@ -183,6 +183,10 @@ while True:
             else:
                 leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',40)
 
+
+            infoSymbol = pg.image.load('resources/images/app/help.png')
+            helpRect = infoSymbol.get_rect(center = (50,710))
+
             mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
             titleText = mainFont.render("Zombie Invasion",True,(255,255,255))
             titleRect = titleText.get_rect(center = (WIDTH/2,100))
@@ -248,6 +252,9 @@ while True:
                 screen.blit(instructions2,(15,620))
                 screen.blit(instructions3,(15,660))
                 screen.blit(instructions4,(15,700))
+            else:
+                screen.blit(infoSymbol, helpRect)
+
             
             x, y = pg.mouse.get_pos()
             if x > 0 and x < MAX_X - 1 and y > 0 and y < MAX_Y - 1:
@@ -311,7 +318,7 @@ while True:
         cursorRect = cursor.get_rect()
 
         timerFont = pg.font.Font('resources/fonts/timer.ttf',30)
-        levelFont = pg.font.Font('resources/fonts/lemonmilk.otf',30)
+        levelFont = pg.font.Font('resources/fonts/font2.ttf',30)
         checkpointFont = pg.font.Font('resources/fonts/lemonmilk.otf',20)
 
         livesList = []
@@ -385,7 +392,7 @@ while True:
             saveText = saveFont.render("Save Score",True,(0,0,0))
             saveRect = saveText.get_rect(center = (1190,635))
 
-            if mainMenuRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 8)):
+            if mainMenuRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
                 mainMenuFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
             else:
                 mainMenuFont = pg.font.Font('resources/fonts/font.ttf',30)
@@ -405,14 +412,14 @@ while True:
                 if event.type == pg.KEYDOWN:
                     if active:
                         if event.key == pg.K_RETURN:
-                            scoreDict = {}
-                            scoreDict[nameText] = player.currScore
-
+                            scoreDict = {'name' : nameText, 'score' : player.currScore}
                             abspath = pathlib.Path("leaderboard.pickle").absolute()
                             readBoard = open(str(abspath), "rb")
-                            dictList = pickle.load(readBoard)
+                            tmp = pickle.load(readBoard)
 
-                            dictList.append(scoreDict)
+                            tmp.append(scoreDict)
+
+                            dictList = sorted(tmp, key = itemgetter('score'), reverse = True)
 
                             with open('leaderboard.pickle', 'wb') as file:
                                 pickle.dump(dictList, file, protocol=pickle.HIGHEST_PROTOCOL)
@@ -429,7 +436,7 @@ while True:
                 if event.type == pg.MOUSEBUTTONUP and inputBox.collidepoint(event.pos):
                     active = True
                     nameText = ""
-                    nameBox.left = 520
+                    nameBox.left = 525
                 elif event.type == pg.MOUSEBUTTONUP and not inputBox.collidepoint(event.pos):
                     active = False
                     nameText = "Name Here"
@@ -763,7 +770,7 @@ while True:
             platform_group.draw(screen)
             
             x, y = pg.mouse.get_pos()
-            if not alive and x > 0 and x < 1315 and y > 0 and y < 739: #boss   
+            if not alive and x > 0 and x < 1315 and y > 0 and y < 739:   
                 screen.blit(cursor, cursorRect)
 
             if isGameOver:
@@ -779,8 +786,8 @@ while True:
                         screen.blit(empty,inputBox)
                         nameIn = nameFont.render(nameText,True,(0,0,0))
                         screen.blit(nameIn,nameBox)
-                        if not alive and x > 0 and x < 1315 and y > 0 and y < 739: #boss   
-                            screen.blit(cursor, cursorRect)
+                if not alive and x > 0 and x < 1315 and y > 0 and y < 739:
+                    screen.blit(cursor, cursorRect)
             
             for rect in livesListRect:
                 screen.blit(livesImg, rect)
@@ -788,8 +795,9 @@ while True:
             clock.tick(60)
 
     if window == 3:
+        
         with open("leaderboard.pickle", "rb") as file:
-            loaded_dict = pickle.load(file)
+            loadedList = pickle.load(file)
 
         WIDTH = 1316
         HEIGHT = 740
@@ -800,8 +808,8 @@ while True:
         pg.display.set_caption("Zombie Invasion: Apocalypse")
         clock = pg.time.Clock()
         pg.mouse.set_visible(True)
-        mainScreen = pg.image.load('resources/images/app/leaderboard.jpg') #
-        mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT)) #
+        mainScreen = pg.image.load('resources/images/app/leaderboard.jpg')
+        mainScreen = pg.transform.scale(mainScreen,(WIDTH,HEIGHT)) 
 
         cursor = pg.image.load('resources/images/app/cursor.png')
         cursorRect = cursor.get_rect()
@@ -810,8 +818,50 @@ while True:
         MAX_X, MAX_Y = screen.get_size()
 
         mainMenuFont = pg.font.Font('resources/fonts/font.ttf',30)
-        leaderBoardNamesFont = pg.font.Font('resources/fonts/leaderboard.ttf',70) #
-        mainFont = pg.font.Font('resources/fonts/font.ttf',90) #
+        leaderBoardNamesFont = pg.font.Font('resources/fonts/font.ttf',45)
+        mainFont = pg.font.Font('resources/fonts/font.ttf',90)
+        clrFont = pg.font.Font('resources/fonts/font.ttf',30)
+
+        if len(loadedList) >= 1:
+            top1 = leaderBoardNamesFont.render(f"{loadedList[0].get('name')}",True,(255,255,255))
+            top1Rect = top1.get_rect(top = 220)
+            top1Rect.left = 358
+            top1s = leaderBoardNamesFont.render(f"{loadedList[0].get('score')}",True,(255,255,255))
+            top1sRect = top1.get_rect(top = 220)
+            top1sRect.left = 855
+        
+        if len(loadedList) >= 2:
+            top2 = leaderBoardNamesFont.render(f"{loadedList[1].get('name')}",True,(255,255,255))
+            top2Rect = top2.get_rect(top = 270)
+            top2Rect.left = 358
+            top2s = leaderBoardNamesFont.render(f"{loadedList[1].get('score')}",True,(255,255,255))
+            top2sRect = top2.get_rect(top = 270)
+            top2sRect.left = 855
+
+        if len(loadedList) >= 3:
+            top3 = leaderBoardNamesFont.render(f"{loadedList[2].get('name')}",True,(255,255,255))
+            top3Rect = top3.get_rect(top = 320)
+            top3Rect.left = 358
+            top3s = leaderBoardNamesFont.render(f"{loadedList[2].get('score')}",True,(255,255,255))
+            top3sRect = top3.get_rect(top = 320)
+            top3sRect.left = 855
+        
+        if len(loadedList) >= 4:
+            top4 = leaderBoardNamesFont.render(f"{loadedList[3].get('name')}",True,(255,255,255))
+            top4Rect = top4.get_rect(top = 370)
+            top4Rect.left = 358
+            top4s = leaderBoardNamesFont.render(f"{loadedList[3].get('score')}",True,(255,255,255))
+            top4sRect = top4.get_rect(top = 370)
+            top4sRect.left = 855
+        
+        if len(loadedList) >= 5:
+            top5 = leaderBoardNamesFont.render(f"{loadedList[4].get('name')}",True,(255,255,255))
+            top5Rect = top5.get_rect(top = 420)
+            top5Rect.left = 358
+            top5s = leaderBoardNamesFont.render(f"{loadedList[4].get('score')}",True,(255,255,255))
+            top5sRect = top5.get_rect(top = 420)
+            top5sRect.left = 855      
+
 
         # mixer.music.load('MainMenu.wav')
         # mixer.music.play(-1)
@@ -824,15 +874,21 @@ while True:
             leaderBoardTitle = mainFont.render("Leaderboard",True,(255,255,255))
             leaderBoardTitleRect = leaderBoardTitle.get_rect(center = (WIDTH/2,100))
 
-
-
             mainMenuText2 = mainMenuFont.render("Main Menu",True,(255,255,255))
             mainMenuRect2 = mainMenuText2.get_rect(center = (1190,670))
 
-            if mainMenuRect2.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 8)):
+            clrText = clrFont.render("Clear leaderboard", True, (255,255,255))
+            clrRect = clrText.get_rect(center = (170,670))
+
+            if mainMenuRect2.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
                 mainMenuFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
             else:
                 mainMenuFont = pg.font.Font('resources/fonts/font.ttf',30)
+
+            if clrRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
+                clrFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
+            else:
+                clrFont = pg.font.Font('resources/fonts/font.ttf',30)
 
             for event in pg.event.get():
                 if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
@@ -844,18 +900,43 @@ while True:
                     window = 1
                     break
                
+                if event.type == pg.MOUSEBUTTONUP and clrRect.collidepoint(event.pos):
+                    dictList = []
+                    with open('leaderboard.pickle', 'wb') as file:
+                        pickle.dump(dictList, file, protocol=pickle.HIGHEST_PROTOCOL)
+                    
+                    windowFlag = False
+                    window = 3
+                    break
 
             if not windowFlag:
                 windowFlag = True
                 break
                 
+
+            if len(loadedList) >= 1:
+                screen.blit(top1, top1Rect)
+                screen.blit(top1s, top1sRect)
+            if len(loadedList) >= 2:
+                screen.blit(top2, top2Rect)
+                screen.blit(top2s, top2sRect)
+            if len(loadedList) >= 3:
+                screen.blit(top3, top3Rect)
+                screen.blit(top3s, top3sRect)
+            if len(loadedList) >= 4:
+                screen.blit(top4, top4Rect)
+                screen.blit(top4s, top4sRect)
+            if len(loadedList) >= 5:
+                screen.blit(top5, top5Rect)
+                screen.blit(top5s, top5sRect)
+
             screen.blit(mainMenuText2,mainMenuRect2)
             screen.blit(leaderBoardTitle,leaderBoardTitleRect)
+            screen.blit(clrText, clrRect)
 
 
             x, y = pg.mouse.get_pos()
             if x > 0 and x < MAX_X - 1 and y > 0 and y < MAX_Y - 1:
                 screen.blit(cursor, cursorRect)
-                
             pg.display.update()
             clock.tick(60)

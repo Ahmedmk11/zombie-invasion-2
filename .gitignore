@@ -1,4 +1,6 @@
 __pycache__/
 *.py[cod]
+*.pickle
+**/*.pickle
 build/
 dist/
