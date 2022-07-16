@@ -116,14 +116,12 @@ def main_game():
     player.move()
 
     if isShootingLeft or isShootingRight:
-        if player.shootingCoolDown == 0:
-            player.shoot(False)
-            player.shootingCoolDown = 10
+        player.shoot(False)
+
 
     if isShootingLeftUp or isShootingRightUp:
-        if player.shootingCoolDownUp == 0:
-            player.shoot(True)
-            player.shootingCoolDownUp = 10
+        player.shoot(True)
+            
 
     if player.pos.x > WIDTH:
         player.pos.x = 0
@@ -161,7 +159,8 @@ while True:
         
         playFont1 = pg.font.Font('resources/fonts/font.ttf',70)
         playFont2 = pg.font.Font('resources/fonts/font.ttf',70)
-        leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',30)
+        leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',40)
+        quitFont = pg.font.Font('resources/fonts/font.ttf',30)
         mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
         instFont = pg.font.Font('resources/fonts/lemonmilk.otf',12)
         instHead = pg.font.Font('resources/fonts/lemonmilk.otf',24)
@@ -186,20 +185,19 @@ while True:
         titleRect = titleText.get_rect(center = (WIDTH/2,100)) 
         helpRect = infoSymbol.get_rect(center = (50,710))
 
-        # mixer.music.load('MainMenu.wav')
-        # mixer.music.play(-1)
-
         while True:
             screen.fill((0,0,0))
             cursorRect.center = pg.mouse.get_pos()
 
-            playText1 = playFont1.render("Story Mode",True,(255,255,255))
-            playText2 = playFont2.render("Survival Mode",True,(255,255,255))
+            playText1 = playFont1.render("Story",True,(255,255,255))
+            playText2 = playFont2.render("Survival",True,(255,255,255))
             leaderBoardText = leaderBoardFont.render("Leaderboard",True,(255,255,255))
+            quitText = quitFont.render("Quit", True ,(255,255,255))
 
             playRect1 = playText1.get_rect(center = (640,280))
             playRect2 = playText2.get_rect(center = (640,360))
             leaderBoardRect = leaderBoardText.get_rect(center = (1190,30))
+            quitRect = quitText.get_rect(center = (1250, 700))
 
             if playRect1.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
                 playFont1 = pg.font.Font('resources/fonts/font.ttf',int(80*1.1))
@@ -215,16 +213,22 @@ while True:
                 leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',int(40*1.1))
             else:
                 leaderBoardFont = pg.font.Font('resources/fonts/font.ttf',40)
+            
+            if quitRect.collidepoint((pg.mouse.get_pos()[0],pg.mouse.get_pos()[1] - 12)):
+                quitFont = pg.font.Font('resources/fonts/font.ttf',int(30*1.1))
+            else:
+                quitFont = pg.font.Font('resources/fonts/font.ttf',30)
                 
             screen.blit(mainScreen,(0,0))
             screen.blit(playText1,playRect1)
             screen.blit(playText2,playRect2)
             screen.blit(leaderBoardText,leaderBoardRect)
+            screen.blit(quitText,quitRect)
             screen.blit(titleText,titleRect)
 
 
             for event in pg.event.get():
-                if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                if event.type == pg.QUIT or (event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE) or (event.type == pg.MOUSEBUTTONUP and (quitRect.collidepoint(event.pos))):
                     pg.quit()
                     sys.exit()
 
@@ -290,13 +294,13 @@ while True:
         rtime = 75
         dragonFreq = 3000
         if mode == 1:
-            zombieFreq = 600
             zombieSpeed = 2
         elif mode == 2:
-            zombieFreq = 800
             zombieSpeed = 1
+        zombieFreq = 600
         nameText = "Name Here"
-        
+        frameI = 0
+       
         save = False
         zombiesWave = True
         dragonsWave = False
@@ -323,7 +327,9 @@ while True:
         loseFlagSFX = True
         winFlag = True
         isWin = False
+        rickFlag = False
 
+        rrlist = []
         livesList = []
         livesListRect = []
         zombieEvent = pg.USEREVENT
@@ -375,6 +381,7 @@ while True:
         zombieFreqTimer = pg.time.get_ticks()
         dragonEventTimer = pg.time.get_ticks()
         dragonStartTimer = pg.time.get_ticks()
+        updateT = pg.time.get_ticks()
 
         platform_group.add(platform)
         player_group.add(player)
@@ -383,6 +390,10 @@ while True:
             livesRect = livesImg.get_rect(center = ((i * 50, 85)))
             livesList.append(livesImg)
             livesListRect.append(livesRect)
+
+        for i in range(0,28):
+            rr = pg.image.load(f'resources/images/app/dir/frame_{i}_delay-0.08s.png')
+            rrlist.append(rr)
     
         while True:
             screen.fill((40,40,40))
@@ -552,6 +563,19 @@ while True:
                 windowFlag = True
                 break
 
+# dont mind this
+
+            if save and (nameText in {"zizo", "Zizo", "ZIZO", "youssef tamer", "Youssef Tamer", "Youssef", "ibrahim", "Ibrahim", "IBRAHIM", "moaz", "Moaz", "Moaz"}):
+                rick = rrlist[frameI]
+                if pg.time.get_ticks() - updateT >= 60:
+                    updateT = pg.time.get_ticks()
+                    frameI += 1
+                    if frameI >= 27:
+                        frameI = 0
+                    rickFlag = True
+            else:
+                rickFlag = False
+
             shotZombieDict = pg.sprite.groupcollide(zombies_group, bullet_group, False, True)
             
             if len(shotZombieDict) != 0:
@@ -636,7 +660,7 @@ while True:
                         else:
                             now = datetime.datetime.now().second
                         timeFlag = False
-                    if (abs(datetime.datetime.now().second - now) == 1):
+                    if abs(datetime.datetime.now().second - now) == 1:
                         timeFlag = True
                         rtime -= 1
                         remaining_mins = int(rtime/60)
@@ -790,7 +814,7 @@ while True:
 
             main_game()
             platform_group.draw(screen)
-            
+
             x, y = pg.mouse.get_pos()
             if not alive and x > 0 and x < 1315 and y > 0 and y < 739:   
                 screen.blit(cursor, cursorRect)
@@ -812,6 +836,8 @@ while True:
                         nameIn = nameFont.render(nameText,True,(0,0,0))
                         screen.blit(nameIn,nameBox)
 
+            if rickFlag:
+                screen.blit(rick,(0,0))
             screen.blit(mainMenuText,mainMenuRect)
             if x > 0 and x < 1315 and y > 0 and y < 739:
                 screen.blit(cursor, cursorRect)
@@ -960,4 +986,3 @@ while True:
                 screen.blit(cursor, cursorRect)
             pg.display.update()
             clock.tick(60)
-            

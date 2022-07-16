@@ -83,17 +83,17 @@ class Zombie(pg.sprite.Sprite):
 
         
     def move(self):
+        if not self.appearing:
+            if self.walking and not self.hp <= 0:
+                if not self.isFlipped:
+                    self.update_action(2)
+                elif self.isFlipped:
+                    self.update_action(3)
 
-        if self.walking and not self.hp <= 0:
             if not self.isFlipped:
-                self.update_action(2)
-            elif self.isFlipped:
-                self.update_action(3)
-
-        if not self.isFlipped:
-            self.rect.centerx -= self.speed
-        if self.isFlipped:
-            self.rect.centerx += self.speed
+                self.rect.centerx -= self.speed
+            if self.isFlipped:
+                self.rect.centerx += self.speed
 
     def attack(self):
         if self.attacking and not self.hp <= 0:

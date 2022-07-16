@@ -35,8 +35,6 @@ class Bullet(pg.sprite.Sprite):
                     InGame.boss.getDamage(10)
                 if self.rect.centery > 182 and self.rect.centery <= 350 or InGame.boss.attacking:
                     InGame.boss.getDamage(20)
-                self.kill()
-
-            
+                self.kill()    
         InGame.screen.blit(self.image,self.rect)
         

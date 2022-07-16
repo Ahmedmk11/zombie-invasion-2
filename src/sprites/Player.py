@@ -128,8 +128,10 @@ class Player(pg.sprite.Sprite):
             self.vel_vec.y = -17
 
     def shoot(self,angle):
-        bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 12, self.direction, angle)
-        InGame.bullet_group.add(bullet)
+        if self.shootingCoolDown == 0:
+            bullet = bt.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]), self.rect.centery - 12, self.direction, angle)
+            InGame.bullet_group.add(bullet)
+            self.shootingCoolDown = 10
 
     def getDamage(self, val):
         self.hp -= val
@@ -166,7 +168,7 @@ class Player(pg.sprite.Sprite):
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:
             self.updateTime = pg.time.get_ticks()
             if not InGame.alive and self.frameIndex == len(self.anime[self.action]) - 1:
-                self.frameIndex == len(self.anime[self.action]) - 1
+                self.frameIndex = len(self.anime[self.action]) - 1
             else:
                 self.frameIndex += 1
 
