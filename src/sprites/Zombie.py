@@ -155,8 +155,10 @@ class Zombie(pg.sprite.Sprite):
             if self.attacking and self.frameIndex == len(self.anime[self.action]) - 1:
                 if not self.isBoss:
                     InGame.player.getDamage(10)
+                    InGame.hitSFX.play()
                 else:
                     InGame.player.getDamage(50)
+                    InGame.hitSFX.play()
 
 
 

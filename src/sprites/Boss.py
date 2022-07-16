@@ -1,6 +1,8 @@
 import os
+import random
 import pygame as pg
 from sprites import Zombie as zm
+from pygame import mixer
 import InGame
 
 def makeAnimation(directory):
@@ -31,7 +33,7 @@ class Boss(zm.Zombie):
     def __init__(self):
         zm.Zombie.__init__(self,3,True)
         self.isFlipped = False
-        self.hp = 3000
+        self.hp = 20
         self.walkLeft = makeAnimation('resources/images/sprites/boss/walk/')
         self.walkRight = makeAnimationFlip('resources/images/sprites/boss/walk/')
         self.idleLeft = makeAnimation('resources/images/sprites/boss/idle/')
@@ -69,4 +71,9 @@ class Boss(zm.Zombie):
 
     def getDamage(self, val):
         self.hp -= val
+        bossDamageSFX = mixer.Sound(f'resources/sounds/boss/{random.randrange(1,9)}.wav')
+        if self.hp > 0:
+            bossDamageSFX.play()
+        else:
+            InGame.bossDieSFX.play()
         

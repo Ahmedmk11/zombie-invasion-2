@@ -124,8 +124,7 @@ class Player(pg.sprite.Sprite):
         hits = pg.sprite.spritecollide(InGame.player_group.sprite, InGame.platform_group,False)
         self.rect.y -= -1
         if hits:
-            # jump_sound = mixer.Sound('Jump.wav')
-            # jump_sound.play()
+            InGame.jumpSFX.play()
             self.vel_vec.y = -17
 
     def shoot(self,angle):
@@ -134,8 +133,6 @@ class Player(pg.sprite.Sprite):
 
     def getDamage(self, val):
         self.hp -= val
-        # hit_sound = mixer.Sound('Hit.wav')
-        # hit_sound.play()
 
     def die(self):
         InGame.alive = False

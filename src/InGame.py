@@ -9,38 +9,63 @@ from pygame import mixer
 import pygame as pg, random, sys, pickle, pathlib
 pg.init()
 
+window = 1
+WIDTH = 1316
+HEIGHT = 740
+windowFlag = True
+mainSFXFlag = False
+
+buttonSFX = mixer.Sound('resources/sounds/button.wav')
+typeSFX = mixer.Sound('resources/sounds/type.wav')
+backSpaceSFX = mixer.Sound('resources/sounds/backspace.wav')
+closeSFX = mixer.Sound('resources/sounds/save_close.wav')
+openSFX = mixer.Sound('resources/sounds/save_open.wav')
+winSFX = mixer.Sound('resources/sounds/win.wav')
+loseSFX = mixer.Sound('resources/sounds/lose.wav')
+levelSFX = mixer.Sound('resources/sounds/level_up.wav')
+jumpSFX = mixer.Sound('resources/sounds/jump.wav')
+hitSFX = mixer.Sound('resources/sounds/player_hit.wav')
+bulletSFX = mixer.Sound('resources/sounds/bullet.wav')
+lifeLostSFX = mixer.Sound('resources/sounds/life_lost.wav')
+zombieDieSFX = mixer.Sound('resources/sounds/zombie_die.wav')
+fireballSFX = mixer.Sound('resources/sounds/fireball.wav')
+dragonDieSFX = mixer.Sound('resources/sounds/dragon_die.wav')
+bossDieSFX = mixer.Sound('resources/sounds/boss/boss_die.wav')
+
 def levelUp():
-        bullet_group.empty()
-        fireball_group.empty()
-        zombies_group.empty()
-        dragon_group.empty()
-        player_group.empty()
-        player = pl.Player()
-        player_group.add(player)
-        return player
+
+    levelSFX.play()
+    bullet_group.empty()
+    fireball_group.empty()
+    zombies_group.empty()
+    dragon_group.empty()
+    player_group.empty()
+    player = pl.Player()
+    player_group.add(player)
+    return player
 
 def game_over():
+
     bullet_group.empty()
     fireball_group.empty()
     cursorRect.center = pg.mouse.get_pos()
+    
     gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
 
     if lives == 0:
+        if loseFlagSFX:
+            loseSFX.play()
         text = gameOverFont.render("Game Over",True,(255,255,255))
         text_rect = text.get_rect(center = (653,243))
-        isGameOver = True
     if bossExists:
         if boss.hp <= 0:
-            gameOverFont = pg.font.Font('resources/fonts/game_over.ttf',180)
             text = gameOverFont.render("You Won",True,(255,255,255))
             text_rect = text.get_rect(center = (653,243))
             for zm in zombies_group:
                 zm.hp = 0
             for dr in dragon_group:
                 dr.hp = 0
-            isGameOver = True
-        
-    
+    isGameOver = True
 
     return text, text_rect, isGameOver
 
@@ -93,15 +118,11 @@ def main_game():
 
     if isShootingLeft or isShootingRight:
         if player.shootingCoolDown == 0:
-            # Fireball_sound = mixer.Sound('Fireball.wav')
-            # Fireball_sound.play()
             player.shoot(False)
             player.shootingCoolDown = 10
 
     if isShootingLeftUp or isShootingRightUp:
         if player.shootingCoolDownUp == 0:
-            # Fireball_sound = mixer.Sound('Fireball.wav')
-            # Fireball_sound.play()
             player.shoot(True)
             player.shootingCoolDownUp = 10
 
@@ -117,16 +138,18 @@ def main_game():
             if boss.rect.centerx < 0:
                 boss.rect.centerx = WIDTH
 
-window = 1
-windowFlag = True
-WIDTH = 1316
-HEIGHT = 740
-
 while True:
 
     if window == 1:
+        
+        if not mainSFXFlag:
+            pg.mixer.music.stop()
+            pg.mixer.music.load('resources/sounds/music/mainmenu.wav')
+            pg.mixer.music.play(-1)
 
+        mainSFXFlag = False
         inst = False
+
         appIcon = pg.image.load('resources/images/app/icon.png')
         mainScreen = pg.image.load('resources/images/world/6.png')
         up = pg.image.load("resources/images/app/up.png")
@@ -208,6 +231,7 @@ while True:
                     sys.exit()
 
                 if event.type == pg.MOUSEBUTTONUP and (playRect1.collidepoint(event.pos) or playRect2.collidepoint(event.pos)):
+                    buttonSFX.play()
                     if playRect1.collidepoint(event.pos):
                         mode = 1
                     else:
@@ -217,6 +241,7 @@ while True:
                     break
 
                 if event.type == pg.MOUSEBUTTONUP and leaderBoardRect.collidepoint(event.pos):
+                    buttonSFX.play()
 
                     windowFlag = False
                     window = 3
@@ -224,6 +249,7 @@ while True:
 
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_i:
+                        buttonSFX.play()
                         inst = True
 
                 if event.type == pg.KEYUP:
@@ -256,11 +282,14 @@ while True:
 
     if window == 2:
 
+        pg.mixer.music.stop()
+        pg.mixer.music.load('resources/sounds/music/ingame.wav')
+        pg.mixer.music.play(-1)
         lives = 3
         level = 1
         remaining_mins = 1
         remaining_secs = 15
-        rtime = 75  
+        rtime = 75
         dragonFreq = 3000
         if mode == 1:
             zombieFreq = 600
@@ -271,7 +300,7 @@ while True:
         nameText = "Name Here"
         
         save = False
-        zombiesWave = True
+        zombiesWave = False
         dragonsWave = False
         isGameOver = False
         bossExists = False
@@ -292,6 +321,10 @@ while True:
         isDeadLeft = False
         isDeadRight = False
         timeFlag = True
+        winFlagSFX = True
+        loseFlagSFX = True
+        winFlag = True
+        isWin = False
 
         livesList = []
         livesListRect = []
@@ -398,24 +431,31 @@ while True:
 
                         elif event.key == pg.K_BACKSPACE:
                             nameText = nameText[:-1]
+                            backSpaceSFX.play()
                         elif len(nameText) <= 12:
                             nameText += event.unicode
+                            typeSFX.play()
                     
                 if event.type == pg.MOUSEBUTTONUP and inputBox.collidepoint(event.pos):
                     active = True
                     nameText = ""
                     nameBox.left = 525
-                elif event.type == pg.MOUSEBUTTONUP and not inputBox.collidepoint(event.pos):
+                elif event.type == pg.MOUSEBUTTONUP and not inputBox.collidepoint(event.pos) and save:
+                    closeSFX.play()
                     active = False
+                    save = False
                     nameText = "Name Here"
                     nameBox.center = (658,350)
 
                 if event.type == pg.MOUSEBUTTONUP and mainMenuRect.collidepoint(event.pos):
+                    buttonSFX.play()
                     windowFlag = False
                     window = 1
                     break
 
                 if event.type == pg.MOUSEBUTTONUP and saveRect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    openSFX.play()
                     save = True
 
                 if event.type == pg.KEYDOWN and alive:
@@ -526,6 +566,7 @@ while True:
                         shotZombie.rect.bottom = 610
 
                     shotZombie.hp = 0
+                    zombieDieSFX.play()
 
             shotDragonDict = pg.sprite.groupcollide(dragon_group, bullet_group, False, True)
             
@@ -540,11 +581,12 @@ while True:
                         shotDragon.update_action(3)
 
                 shotDragon.hp = 0
+                dragonDieSFX.play()
 
             if mode == 1:
 
                 if bossExists:
-                    if boss.hp <= 1500 and checkpoint:
+                    if boss.hp <= 250 and checkpoint:
                         checkpointTimer = pg.time.get_ticks()
                         checkpoint = False
                         checkpointFlag = True
@@ -561,7 +603,10 @@ while True:
                         dragonsWave = False
                         player.die()
                         text, text_rect, isGameOver = game_over()
+                        loseFlagSFX = False
+                        winFlagSFX = False
                     else:
+                        lifeLostSFX.play()
                         rtime = 75
                         lives -= 1
                         livesListRect.pop()
@@ -571,7 +616,7 @@ while True:
                         dragon_group.empty()
                         player_group.empty()
                         if bossExists:
-                            if boss.hp > 1500:
+                            if boss.hp > 250:
                                 boss_group.empty()
                                 boss = Boss.Boss()
                                 boss_group.add(boss)
@@ -612,6 +657,9 @@ while True:
                         level = 5
                         player = levelUp()
                     elif level == 5:
+                        pg.mixer.music.stop()
+                        pg.mixer.music.load('resources/sounds/music/boss.wav')
+                        pg.mixer.music.play(-1)
                         level = 6
                         bossDelay = pg.time.get_ticks()
                         player = levelUp()
@@ -628,6 +676,14 @@ while True:
                 if level == 6 and bossExists:
                     if boss.hp <= 0:
                         text, text_rect, isGameOver = game_over()
+                        loseFlagSFX = False
+                        if winFlag:
+                            winDelay = pg.time.get_ticks()
+                            isWin = True
+                            winFlag = False
+                        if winFlagSFX and pg.time.get_ticks() - winDelay >= 2000:
+                            winFlagSFX = False
+                            winSFX.play()
 
                 if level == 2:
                     zombieFreq = 500
@@ -680,7 +736,10 @@ while True:
                         dragonsWave = False
                         player.die()
                         text, text_rect, isGameOver = game_over()
+                        loseFlagSFX = False
+                        winFlagSFX = False
                     else:
+                        lifeLostSFX.play()
                         rtime = 75
                         lives -= 1
                         livesListRect.pop()
@@ -737,7 +796,11 @@ while True:
                 screen.blit(cursor, cursorRect)
 
             if isGameOver:
-                screen.blit(text,text_rect)
+                if isWin:
+                    if pg.time.get_ticks() - winDelay >= 2000:
+                        screen.blit(text,text_rect)
+                else:
+                    screen.blit(text,text_rect)
                 screen.blit(mainMenuText,mainMenuRect)
                 if mode == 2:
                     screen.blit(saveText, saveRect)
@@ -759,7 +822,6 @@ while True:
 
     if window == 3:
         
-
         appIcon = pg.image.load('resources/images/app/icon.png')
         mainScreen = pg.image.load('resources/images/app/leaderboard.jpg')
         cursor = pg.image.load('resources/images/app/cursor.png')
@@ -823,9 +885,6 @@ while True:
             top5s = leaderBoardNamesFont.render(f"{loadedList[4].get('score')}",True,(255,255,255))
             top5sRect = top5.get_rect(top = 420)
             top5sRect.left = 855      
-        
-        # mixer.music.load('MainMenu.wav')
-        # mixer.music.play(-1)
 
         while True:
             screen.blit(mainScreen,(0,0))
@@ -855,11 +914,14 @@ while True:
                     sys.exit()
 
                 if event.type == pg.MOUSEBUTTONUP and mainMenuRect2.collidepoint(event.pos):
+                    buttonSFX.play()
                     windowFlag = False
                     window = 1
+                    mainSFXFlag = True
                     break
                
                 if event.type == pg.MOUSEBUTTONUP and clrRect.collidepoint(event.pos):
+                    buttonSFX.play()
                     dictList = []
                     with open('leaderboard.pickle', 'wb') as file:
                         pickle.dump(dictList, file, protocol=pickle.HIGHEST_PROTOCOL)

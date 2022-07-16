@@ -26,10 +26,12 @@ class Fireball(pg.sprite.Sprite):
 
         self.velVec = unitVec * self.speed
         self.rect = self.image.get_rect(center = (x,y))
-
+        
+        InGame.fireballSFX.play()
+        
     def update(self):
         self.rect.center -= self.velVec
-        if self.rect.left >= 1321 or self.rect.right <= -5 or self.rect.bottom > 570:  
+        if self.rect.left >= 1321 or self.rect.right <= -5 or self.rect.bottom > 620:  
             self.kill()
         InGame.screen.blit(self.image,self.rect)
         

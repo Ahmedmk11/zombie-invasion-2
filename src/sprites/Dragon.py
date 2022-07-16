@@ -10,7 +10,6 @@ def makeAnimation(directory):
     for i in range(1,n+1):
         if (os.path.exists(f'{directory}{i}.png')):
             tmp = pg.image.load(f'{directory}{i}.png')
-            # tmp.set_colorkey((0,0,0))
             tempList.append(tmp)
     
     return tempList
@@ -22,7 +21,6 @@ def makeAnimationFlip(directory):
     for i in range(1,n+1):
         if (os.path.exists(f'{directory}{i}.png')):
             tmp = pg.image.load(f'{directory}{i}.png')
-            # tmp.set_colorkey((0,0,0))
             tempList.append(pg.transform.flip(tmp,True,False))
     
     return tempList
@@ -95,14 +93,12 @@ class Dragon(pg.sprite.Sprite):
             animation_cooldown = 20
 
         if self.attackCoolDown == 0 and InGame.alive:
-            # Fireball_sound = mixer.Sound('Fireball.wav')
-            # Fireball_sound.play()
             self.fireball = self.attack()
 
             if self.color == "red":
                 self.attackCoolDown = 200
             elif self.color == "yellow":
-                self.attackCoolDown = 200
+                self.attackCoolDown = 300
 
 
         self.image = self.anime[self.action][self.frameIndex]
@@ -113,8 +109,10 @@ class Dragon(pg.sprite.Sprite):
             self.fireball.kill()
             if self.color == "yellow":
                 InGame.player.getDamage(15)
+                InGame.hitSFX.play()
             else:
                 InGame.player.getDamage(25)
+                InGame.hitSFX.play()
             self.fireball.flag = False
 
         if pg.time.get_ticks() - self.updateTime >= animation_cooldown:

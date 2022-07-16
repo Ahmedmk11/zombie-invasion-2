@@ -19,9 +19,9 @@ class Bullet(pg.sprite.Sprite):
             self.image = pg.transform.flip(self.tmp, True, False)
             if InGame.isShootingRightUp:
                 self.image = pg.transform.rotate(self.image,45)
-
-
         self.rect = self.image.get_rect(center = (x,y))
+        
+        InGame.bulletSFX.play()
 
     def update(self):
         self.rect.x -= (self.direction * self.speed)
