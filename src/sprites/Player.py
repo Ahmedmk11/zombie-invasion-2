@@ -188,3 +188,4 @@ class Player(pg.sprite.Sprite):
             self.action = new_action
             self.frameIndex = 0
             self.updateTime = pg.time.get_ticks()
+            

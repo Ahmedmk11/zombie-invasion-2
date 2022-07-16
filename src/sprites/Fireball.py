@@ -32,3 +32,4 @@ class Fireball(pg.sprite.Sprite):
         if self.rect.left >= 1321 or self.rect.right <= -5 or self.rect.bottom > 570:  
             self.kill()
         InGame.screen.blit(self.image,self.rect)
+        

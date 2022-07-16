@@ -39,3 +39,4 @@ class Bullet(pg.sprite.Sprite):
 
             
         InGame.screen.blit(self.image,self.rect)
+        

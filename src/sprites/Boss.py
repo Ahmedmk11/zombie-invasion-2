@@ -69,3 +69,4 @@ class Boss(zm.Zombie):
 
     def getDamage(self, val):
         self.hp -= val
+        
