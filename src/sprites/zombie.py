@@ -119,7 +119,7 @@ class Zombie(pg.sprite.Sprite):
     def move(self) -> None:
         """
 
-        This function is responsible for moving the zombie
+        This method is responsible for moving the zombie
         """
 
         if not self.appearing:
@@ -137,7 +137,7 @@ class Zombie(pg.sprite.Sprite):
     def attack(self) -> None:
         """
 
-        This function is responsible for triggering the attack animation
+        This method is responsible for triggering the attack animation
         """
 
         if self.attacking and not self.hp <= 0:
@@ -175,7 +175,7 @@ class Zombie(pg.sprite.Sprite):
     def update(self) -> None:
         """
 
-        This function updates the zombie object every frame during the game
+        This method updates the zombie object every frame during the game
         """
 
         if self.attacking:

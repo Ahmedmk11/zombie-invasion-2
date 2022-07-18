@@ -48,7 +48,7 @@ class Fireball(pg.sprite.Sprite):
     def update(self) -> None:
         """
 
-        This function updates the fireball object every frame during the game
+        This method updates the fireball object every frame during the game
         """
 
         self.rect.center -= self.velVec

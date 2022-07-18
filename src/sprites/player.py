@@ -134,7 +134,7 @@ class Player(pg.sprite.Sprite):
     def move(self) -> None:
         """
 
-        This function is responsible for moving the player
+        This method is responsible for moving the player
         """
 
         self.acc_vec = Vector2(0, ACCELERATION)
@@ -162,7 +162,7 @@ class Player(pg.sprite.Sprite):
     def jump(self) -> None:
         """
 
-        This function allows the player to jump
+        This method allows the player to jump
         """
 
         self.rect.y += 1
@@ -182,7 +182,7 @@ class Player(pg.sprite.Sprite):
             self.bullet = bullet.Bullet(self.rect.centerx - (0.5 * self.direction * self.rect.size[0]),
                                         self.rect.centery - 12, self.direction, angle)
             in_game.bullet_group.add(self.bullet)
-            self.shootingCoolDown = 10
+            self.shootingCoolDown = 15
 
     def get_damage(self, val: int) -> None:
         """
@@ -195,7 +195,7 @@ class Player(pg.sprite.Sprite):
     def die(self) -> None:
         """
 
-        This function is responsible for triggering the dying animations
+        This method is responsible for triggering the dying animations
         """
 
         in_game.alive = False
@@ -225,7 +225,7 @@ class Player(pg.sprite.Sprite):
     def update(self) -> None:
         """
 
-        This function updates the player object every frame during the game
+        This method updates the player object every frame during the game
         """
 
         animation_cooldown = 75

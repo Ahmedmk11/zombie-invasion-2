@@ -101,7 +101,7 @@ class Dragon(pg.sprite.Sprite):
     def move(self) -> None:
         """
 
-        This function is responsible for moving the dragon and triggering the animation
+        This method is responsible for moving the dragon and triggering the animation
         """
 
         if not self.hp == 0:
@@ -135,7 +135,7 @@ class Dragon(pg.sprite.Sprite):
     def update(self) -> None:
         """
 
-        This function updates the dragon object every frame during the game
+        This method updates the dragon object every frame during the game
         """
 
         if self.flying:

@@ -42,7 +42,7 @@ class Bullet(pg.sprite.Sprite):
     def update(self) -> None:
         """
 
-        This function updates the bullet object every frame during the game
+        This method updates the bullet object every frame during the game
         """
 
         self.rect.x -= (self.direction * self.speed)

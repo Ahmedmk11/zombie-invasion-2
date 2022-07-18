@@ -3,9 +3,12 @@
 Main game file that controls all GUI and game logic and contains the game loops
 Defined functions:
     * hover - used to check if user hovers on a rectangle and scales the text x1.1
+    * draw_rect_alpha - used to draw transparent rectangles
     * level_up - returns a new player object after clearing all sprite groups
     * game_over - returns the text to be displayed when player wins or loses and kills off all enemy sprites still alive
     * main_game - contains a part of the game loop for better readability
+
+    ** To start the game run the __init__.py file in the same directory as this file
 
 """
 
@@ -73,6 +76,20 @@ def hover(rec: pg.Rect, size: int, fnt_name: str, ext: str) -> pg.font:
     return fnt
 
 
+def draw_rect_alpha(surface: pg.Surface, color: pg.Color, rect: pg.Rect) -> None:
+    """
+    
+    :param surface: the surface that will blit the rectrangle
+    :param color: the color of the rectangle
+    :param rect: the rectangle that will be drawn (position of the colored rectangle)
+    This function is used for drawing rectangles with an alpha value: https://stackoverflow.com/a/64630102/15972847
+    """
+
+    shape_surf = pg.Surface(pg.Rect(rect).size, pg.SRCALPHA)
+    pg.draw.rect(shape_surf, color, shape_surf.get_rect())
+    surface.blit(shape_surf, rect)
+
+
 def level_up() -> player.Player:
     """
 
@@ -90,9 +107,11 @@ def level_up() -> player.Player:
     return plr
 
 
-def game_over() -> tuple[Surface | SurfaceType, Rect | RectType | Any, bool]:
+def game_over(is_one_level: bool, rtime_zero: bool) -> tuple[Surface | SurfaceType, Rect | RectType | Any, bool]:
     """
 
+    :param rtime_zero: boolean to check if the round timer is zero
+    :param is_one_level: boolean to check if the game was story mode or just one level
     :return: a text "Game Over" or "You Won" and the text's rectangle and a boolean to check if game over
     """
 
@@ -117,13 +136,21 @@ def game_over() -> tuple[Surface | SurfaceType, Rect | RectType | Any, bool]:
                 zm.hp = 0
             for dr in dragon_group:
                 dr.hp = 0
-    is_gm_over = True
+    if is_one_level and rtime_zero:
+        txt = game_over_font.render("You Won", True, (255, 255, 255))
+        txt_rect = txt.get_rect(center=(653, 243))
+        for zm in zombies_group:
+            zm.hp = 0
+        for dr in dragon_group:
+            dr.hp = 0
 
+    is_gm_over = True
     return txt, txt_rect, is_gm_over
 
 
 def main_game() -> None:
     """
+
     used in the game loop for a cleaner code and a shorter while loop
     """
 
@@ -193,6 +220,9 @@ def main_game() -> None:
 
 while True:
 
+    levels = 0
+    oneLevel = False
+
     if window == 1:
 
         if not mainSFXFlag:
@@ -202,6 +232,7 @@ while True:
 
         mainSFXFlag = False
         inst = False
+        isToggled = False
 
         appIcon = pg.image.load('resources/images/app/icon.png')
         mainScreen = pg.image.load('resources/images/world/6.png')
@@ -216,10 +247,17 @@ while True:
         playFont1 = pg.font.Font('resources/fonts/font.ttf', 80)
         playFont2 = pg.font.Font('resources/fonts/font.ttf', 80)
         leaderBoardFont = pg.font.Font('resources/fonts/font.ttf', 40)
+        levelsFont = pg.font.Font('resources/fonts/font.ttf', 40)
         quitFont = pg.font.Font('resources/fonts/font.ttf', 30)
         mainFont = pg.font.Font('resources/fonts/font.ttf', 90)
         instFont = pg.font.Font('resources/fonts/lemonmilk.otf', 12)
         instHead = pg.font.Font('resources/fonts/lemonmilk.otf', 24)
+        level1Font = pg.font.Font('resources/fonts/font.ttf', 32)
+        level2Font = pg.font.Font('resources/fonts/font.ttf', 32)
+        level3Font = pg.font.Font('resources/fonts/font.ttf', 32)
+        level4Font = pg.font.Font('resources/fonts/font.ttf', 32)
+        level5Font = pg.font.Font('resources/fonts/font.ttf', 32)
+        level6Font = pg.font.Font('resources/fonts/font.ttf', 32)
 
         pg.display.set_caption("Zombie Invasion: Apocalypse")
         screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -251,22 +289,45 @@ while True:
             playText2 = playFont2.render("Survival", True, (255, 255, 255))
             leaderBoardText = leaderBoardFont.render("Leaderboard", True, (255, 255, 255))
             quitText = quitFont.render("Quit", True, (255, 255, 255))
+            levelsText = levelsFont.render("Levels", True, (255,255,255))
+            level1Text = level1Font.render("Level 1", True, (255,255,255))
+            level2Text = level2Font.render("Level 2", True, (255,255,255))
+            level3Text = level3Font.render("Level 3", True, (255,255,255))
+            level4Text = level4Font.render("Level 4", True, (255,255,255))
+            level5Text = level5Font.render("Level 5", True, (255,255,255))
+            level6Text = level6Font.render("Level 6", True, (255,255,255))
 
             playRect1 = playText1.get_rect(center=(640, 280))
             playRect2 = playText2.get_rect(center=(640, 360))
             leaderBoardRect = leaderBoardText.get_rect(center=(1190, 30))
             quitRect = quitText.get_rect(center=(1250, 700))
+            levelsRect = levelsText.get_rect(center=(80,40))
+            level1Rect = level1Text.get_rect(center=(80, 100))
+            level2Rect = level2Text.get_rect(center=(80, 160))
+            level3Rect = level3Text.get_rect(center=(80, 220))
+            level4Rect = level4Text.get_rect(center=(80, 280))
+            level5Rect = level5Text.get_rect(center=(80, 340))
+            level6Rect = level6Text.get_rect(center=(80, 400))
+            toggledLevelsRect = pg.rect.Rect(10, 72, 150, 355)
 
             playFont1 = hover(playRect1, 80, "font", "ttf")
             playFont2 = hover(playRect2, 80, "font", "ttf")
             leaderBoardFont = hover(leaderBoardRect, 40, "font", "ttf")
             quitFont = hover(quitRect, 30, "font", "ttf")
+            levelsFont = hover(levelsRect, 40, "font", "ttf")
+            level1Font = hover(level1Rect, 32, "font", "ttf")
+            level2Font = hover(level2Rect, 32, "font", "ttf")
+            level3Font = hover(level3Rect, 32, "font", "ttf")
+            level4Font = hover(level4Rect, 32, "font", "ttf")
+            level5Font = hover(level5Rect, 32, "font", "ttf")
+            level6Font = hover(level6Rect, 32, "font", "ttf")
 
             screen.blit(mainScreen, (0, 0))
             screen.blit(playText1, playRect1)
             screen.blit(playText2, playRect2)
             screen.blit(leaderBoardText, leaderBoardRect)
             screen.blit(quitText, quitRect)
+            screen.blit(levelsText, levelsRect)
             screen.blit(titleText, titleRect)
 
             for event in pg.event.get():
@@ -292,6 +353,64 @@ while True:
                     windowFlag = False
                     window = 3
                     break
+
+                if event.type == pg.MOUSEBUTTONUP and level1Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 1
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+
+                if event.type == pg.MOUSEBUTTONUP and level2Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 2
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+
+                if event.type == pg.MOUSEBUTTONUP and level3Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 3
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+                
+                if event.type == pg.MOUSEBUTTONUP and level4Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 4
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+                
+                if event.type == pg.MOUSEBUTTONUP and level5Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 5
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+                
+                if event.type == pg.MOUSEBUTTONUP and level6Rect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    levels = 6
+                    oneLevel = True
+                    mode = 1
+                    windowFlag = False
+                    window = 2
+                    break
+                
+                if event.type == pg.MOUSEBUTTONUP and levelsRect.collidepoint(event.pos):
+                    buttonSFX.play()
+                    isToggled = not isToggled
 
                 if event.type == pg.KEYDOWN:
                     if event.key == pg.K_i:
@@ -319,6 +438,15 @@ while True:
                 screen.blit(instructions4, (15, 700))
             else:
                 screen.blit(infoSymbol, helpRect)
+
+            if isToggled:
+                draw_rect_alpha(screen, (38,37,38), toggledLevelsRect)
+                screen.blit(level1Text, level1Rect)
+                screen.blit(level2Text, level2Rect)
+                screen.blit(level3Text, level3Rect)
+                screen.blit(level4Text, level4Rect)
+                screen.blit(level5Text, level5Rect)
+                screen.blit(level6Text, level6Rect)
 
             x, y = pg.mouse.get_pos()
             if 0 < x < MAX_X - 1 and 0 < y < MAX_Y - 1:
@@ -370,6 +498,8 @@ while True:
         winFlag = True
         isWin = False
         rickFlag = False
+        noTimer = False
+        zero = False
 
         rrlist = []
         livesList = []
@@ -605,10 +735,14 @@ while True:
             list3 = list(map(''.join, itertools.product(*zip('Ibrahim'.upper(), 'Ibrahim'.lower()))))
             list4 = list(map(''.join, itertools.product(*zip('Waleed'.upper(), 'Waleed'.lower()))))
             list5 = list(map(''.join, itertools.product(*zip('Moaz'.upper(), 'Moaz'.lower()))))
+            list6 = list(map(''.join, itertools.product(*zip('Farah'.upper(), 'Farah'.lower()))))
+            list7 = list(map(''.join, itertools.product(*zip('Abdo'.upper(), 'Abdo'.lower()))))
+            list8 = list(map(''.join, itertools.product(*zip('Abdelrahman'.upper(), 'Abdelrahman'.lower()))))
+            list9 = list(map(''.join, itertools.product(*zip('Youssef'.upper(), 'Youssef'.lower()))))
 
-            list6 = list1 + list2 + list3 + list4 + list5
+            list10 = list1 + list2 + list3 + list4 + list5 + list6 + list7 + list8 + list9
 
-            if save and (nameText in list6):
+            if save and (nameText in set(list10)):
                 rick = rrlist[frameI]
                 if pg.time.get_ticks() - updateT >= 60:
                     updateT = pg.time.get_ticks()
@@ -650,6 +784,38 @@ while True:
                 shotDragon.hp = 0
                 dragonDieSFX.play()
 
+            if oneLevel:
+                if levels <= 3 or levels == 5:
+                    level = levels
+                    if levels == 5:
+                        dragonsWave = True
+                if levels == 4:
+                    level = 4
+                    dragonsWave = True
+                if levels == 6:
+                    pg.mixer.music.stop()
+                    pg.mixer.music.load('resources/sounds/music/boss.wav')
+                    pg.mixer.music.play(-1)
+                    level = 6
+                    dragonsWave = True
+                    bossDelay = pg.time.get_ticks()
+                mainScreen = pg.image.load(f'resources/images/world/{level}.png')
+                mainScreen = pg.transform.scale(mainScreen, (1316, 740))
+                oneLevel = False
+                noTimer = True
+                player_obj = level_up()
+
+            if zero and noTimer:
+                alive = False
+                zombiesWave = False
+                dragonsWave = False
+                isMovingLeft = False
+                isMovingRight = False
+                isShootingLeft = False
+                isShootingRight = False
+                isShootingLeftUp = False
+                isShootingRightUp = False
+
             if mode == 1:
 
                 if bossExists:
@@ -669,7 +835,7 @@ while True:
                         zombiesWave = False
                         dragonsWave = False
                         player_obj.die()
-                        text, text_rect, isGameOver = game_over()
+                        text, text_rect, isGameOver = game_over(noTimer, zero)
                         isMovingLeft = False
                         isMovingRight = False
                         isShootingLeft = False
@@ -695,6 +861,7 @@ while True:
                                 boss_group.add(boss_obj)
                             else:
                                 boss_obj.rect.centerx = 877
+                                boss_obj.hp = 1500
                         player_obj = player.Player()
                         player_group.add(player_obj)
                 elif level == 6 and bossExists:
@@ -714,8 +881,9 @@ while True:
                         rtime -= 1
                         remaining_mins = int(rtime / 60)
                         remaining_secs = int(rtime % 60)
-
                 if rtime <= 0:
+                    zero = True
+                if rtime <= 0 and not noTimer:
                     if level == 1:
                         level = 2
                         player_obj = level_up()
@@ -741,6 +909,9 @@ while True:
 
                     rtime = 59
 
+                if rtime <= 0 and noTimer:
+                    text, text_rect, isGameOver = game_over(noTimer, zero)
+
                 if not bossExists and level == 6 and pg.time.get_ticks() - bossDelay >= 5000:
                     boss_obj = boss.Boss()
                     boss_group.add(boss_obj)
@@ -748,7 +919,7 @@ while True:
 
                 if level == 6 and bossExists:
                     if boss_obj.hp <= 0:
-                        text, text_rect, isGameOver = game_over()
+                        text, text_rect, isGameOver = game_over(noTimer, zero)
                         isMovingLeft = False
                         isMovingRight = False
                         isShootingLeft = False
@@ -769,14 +940,14 @@ while True:
                 if level == 3:
                     zombieFreq = 400
                 if level == 4:
-                    zombieFreq = 600
+                    zombieFreq = 550
                     dragonFreq = 6000
                 if level == 5:
-                    zombieFreq = 600
+                    zombieFreq = 500
                     dragonFreq = 4000
                 if level == 6:
                     zombieFreq = 3000
-                    dragonFreq = 5000
+                    dragonFreq = 6000
 
                     if bossExists:
                         if boss_obj.hp <= 0 and boss_obj.isDying:
@@ -814,7 +985,7 @@ while True:
                         zombiesWave = False
                         dragonsWave = False
                         player_obj.die()
-                        text, text_rect, isGameOver = game_over()
+                        text, text_rect, isGameOver = game_over(noTimer, zero)
                         isMovingLeft = False
                         isMovingRight = False
                         isShootingLeft = False
@@ -905,7 +1076,7 @@ while True:
             screen.blit(mainMenuText, mainMenuRect)
             if 0 < x < 1315 and 0 < y < 739:
                 screen.blit(cursor, cursorRect)
-
+            print(zombieFreq)
             for rect in livesListRect:
                 screen.blit(livesImg, rect)
             pg.display.update()
